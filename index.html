@@ -34,6 +34,12 @@
             background-color: #f8fafc;
             color: #1e293b;
         }
+        .hidden {
+            display: none !important;
+        }
+        .modal-dialog-layer {
+            z-index: 99999 !important;
+        }
         .tab-btn {
             border-radius: 0.75rem;
             border: 1px solid #e2e8f0;
@@ -72,11 +78,11 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50">
 
-    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 transition-opacity">
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 transition-opacity" style="z-index: 99990;">
         <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl border border-slate-100 relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-36 h-36 bg-indigo-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
             
-            <div class="text-center mb-6">
+            <div class="text-center mb-5">
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white font-black text-2xl shadow-md mb-2">
                     307
                 </div>
@@ -84,48 +90,77 @@
                 <p class="text-xs text-slate-500 mt-1">총 29명 학생 및 담임선생님 전용 시스템입니다.</p>
             </div>
 
-            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-3.5 text-sm">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">학번 (예: 30701, 30714)</label>
-                    <input type="text" id="login-student-id" required placeholder="학번 입력" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">이름</label>
-                    <input type="text" id="login-student-name" required placeholder="이름 입력 (예: 강유진)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
-                </div>
+            <!-- 학생 / 담임선생님 직접 전환 탭 -->
+            <div class="flex p-1 bg-slate-100 rounded-2xl mb-5 border border-slate-200">
+                <button type="button" id="btn-login-tab-student" onclick="window.switchLoginTab('student')" class="w-1/2 py-2 text-xs font-bold rounded-xl transition-all bg-white text-indigo-700 shadow-xs cursor-pointer">
+                    🧑‍🎓 학생 입장
+                </button>
+                <button type="button" id="btn-login-tab-teacher" onclick="window.switchLoginTab('teacher')" class="w-1/2 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800 cursor-pointer">
+                    👨‍🏫 담임교사 입장
+                </button>
+            </div>
 
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-1.5 cursor-pointer">
-                        <span>🚀 학생 교실 입장</span>
-                    </button>
-                </div>
-            </form>
+            <!-- [패널 1] 학생 로그인 패널 -->
+            <div id="panel-login-student" class="space-y-4">
+                <form id="login-form" onsubmit="window.handleLogin(event)" class="space-y-3.5 text-sm">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">학번 (예: 30701, 30714)</label>
+                        <input type="text" id="login-student-id" placeholder="학번 입력" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">이름</label>
+                        <input type="text" id="login-student-name" placeholder="이름 입력 (예: 강유진)" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm">
+                    </div>
 
-            <div class="mt-5 pt-4 border-t border-slate-100 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <p class="text-[11px] text-slate-400 font-bold">빠른 로그인 선택 (클릭 즉시 접속)</p>
+                    <div class="pt-1">
+                        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span>🚀 학생 교실 입장</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <p class="text-[11px] text-slate-400 font-bold">빠른 학생 입장 선택</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="window.quickLogin('30701', '강유진', 'student')" class="px-2 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 text-center truncate cursor-pointer transition-colors">
+                            1번 강유진
+                        </button>
+                        <button type="button" onclick="window.quickLogin('30714', '조시연', 'student')" class="px-2 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 text-center truncate cursor-pointer transition-colors">
+                            14번 조시연
+                        </button>
+                    </div>
+                    <div>
+                        <select id="login-quick-select" onchange="if(this.value){ const [num, name] = this.value.split('|'); window.quickLogin(num, name, 'student'); }" class="w-full p-2 text-xs border border-slate-200 rounded-xl bg-slate-50 text-slate-600 font-medium cursor-pointer">
+                            <option value="">▼ 29명 전체 학생 명단에서 선택하여 바로 입장...</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button" onclick="quickLogin('30701', '강유진', 'student')" class="px-2 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 text-center truncate cursor-pointer transition-colors">
-                        1번 강유진
-                    </button>
-                    <button type="button" onclick="quickLogin('30714', '조시연', 'student')" class="px-2 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200 text-center truncate cursor-pointer transition-colors">
-                        14번 조시연
-                    </button>
-                    <button type="button" onclick="openTeacherAuthModal()" class="px-2 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl text-center truncate flex items-center justify-center gap-1 shadow-xs cursor-pointer transition-colors">
-                        <span>🔒</span> 담임교사
-                    </button>
+            </div>
+
+            <!-- [패널 2] 담임교사 직접 로그인 패널 (별도 모달 안떠도 여기서 바로 입력 가능) -->
+            <div id="panel-login-teacher" class="hidden space-y-4">
+                <div class="p-3 bg-rose-50 border border-rose-100 rounded-2xl text-center">
+                    <p class="text-xs font-bold text-rose-800">👨‍🏫 담임교사 인증</p>
+                    <p class="text-[11px] text-rose-600 mt-0.5">선생님 전용 보안 비밀번호를 입력하세요.</p>
                 </div>
-                <div>
-                    <select id="login-quick-select" onchange="if(this.value){ const [num, name] = this.value.split('|'); quickLogin(num, name, 'student'); }" class="w-full p-2 text-xs border border-slate-200 rounded-xl bg-slate-50 text-slate-600 font-medium cursor-pointer">
-                        <option value="">▼ 29명 전체 학생 명단에서 선택하여 바로 입장...</option>
-                    </select>
-                </div>
+                <form onsubmit="window.handleDirectTeacherLogin(event)" class="space-y-3.5 text-sm">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">비밀번호 입력</label>
+                        <input type="password" id="direct-teacher-password" maxlength="15" placeholder="선생님 비밀번호" class="w-full text-center tracking-widest text-lg font-black p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 bg-slate-50">
+                        <p id="direct-teacher-error" class="text-[11px] text-rose-600 font-bold mt-1.5 text-center hidden">
+                            비밀번호가 올바르지 않습니다.
+                        </p>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span>🔒 담임교사 모드 입장</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <div id="teacher-auth-modal" class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
+    <!-- [MODAL] 헤더에서 언제든 열 수 있는 담임선생님 인증 팝업 (스타일 강제 적용) -->
+    <div id="teacher-auth-modal" class="modal-dialog-layer fixed inset-0 z-[99999] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm hidden p-4" style="display: none; z-index: 99999;">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative">
             <div class="text-center mb-4">
                 <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-2 text-2xl font-black shadow-xs">
@@ -133,20 +168,20 @@
                 </div>
                 <h3 class="text-base font-extrabold text-slate-800">담임선생님 인증</h3>
                 <p class="text-xs text-slate-500 mt-1">
-                    선생님 전용 보안 비밀번호를 입력해 주세요.
+                    선생님 전용 비밀번호를 입력해 주세요.
                 </p>
             </div>
 
-            <form onsubmit="handleTeacherPasswordSubmit(event)" class="space-y-4 text-xs">
+            <form onsubmit="window.handleTeacherPasswordSubmit(event)" class="space-y-4 text-xs">
                 <div>
-                    <input type="password" id="teacher-login-password" maxlength="15" placeholder="비밀번호 입력" autofocus required class="w-full text-center tracking-widest text-lg font-black p-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+                    <input type="password" id="teacher-login-password" maxlength="15" placeholder="비밀번호 입력" required class="w-full text-center tracking-widest text-lg font-black p-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
                     <p id="teacher-login-error" class="text-[11px] text-rose-600 font-bold mt-1.5 text-center hidden">
                         비밀번호가 올바르지 않습니다.
                     </p>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('teacher-auth-modal')" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer">
+                    <button type="button" onclick="window.closeModal('teacher-auth-modal')" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer">
                         취소
                     </button>
                     <button type="submit" class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-xs cursor-pointer">
@@ -170,24 +205,29 @@
                             <span id="header-user-badge" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
                                 입장 대기 중
                             </span>
-                            <span id="sync-status-badge" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
-                                ☁️ 실시간 연동 중
+                            <span id="sync-status-badge" class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                💾 로컬+클라우드 동기화
                             </span>
                         </div>
                         <p class="text-xs text-slate-500">29명 통합 관리 · 캡처 사진 붙여넣기(Ctrl+V) 지원 · 봉사시간 · 고교선호도</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- 언제든 담임교사로 로그인 가능한 헤더 버튼 -->
+                    <button id="header-teacher-auth-btn" onclick="window.openTeacherAuthModal()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs cursor-pointer transition-colors">
+                        <span>🔒</span> 담임 로그인
+                    </button>
+
                     <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="current-user-name" class="text-xs font-bold text-slate-700">로그인 필요</span>
-                        <button onclick="handleLogout()" class="text-[11px] text-slate-400 hover:text-rose-600 font-semibold ml-1 pl-1.5 border-l border-slate-300 cursor-pointer">
+                        <button onclick="window.handleLogout()" class="text-[11px] text-slate-400 hover:text-rose-600 font-semibold ml-1 pl-1.5 border-l border-slate-300 cursor-pointer">
                             변경
                         </button>
                     </div>
                     
-                    <button id="header-add-notice-btn" onclick="openNoticeModal()" class="hidden items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer">
+                    <button id="header-add-notice-btn" onclick="window.openNoticeModal()" class="hidden items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer">
                         + 공지 작성
                     </button>
                 </div>
@@ -195,45 +235,45 @@
 
             <!-- 네비게이션 탭 -->
             <nav class="flex flex-wrap items-center gap-1.5 sm:gap-2 border-t border-slate-100 py-3" aria-label="Tabs">
-                <button onclick="switchTab('calendar')" id="tab-btn-calendar" class="tab-btn active py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('calendar')" id="tab-btn-calendar" class="tab-btn active py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>📅</span> 우리반 캘린더
                 </button>
-                <button onclick="switchTab('volunteer')" id="tab-btn-volunteer" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('volunteer')" id="tab-btn-volunteer" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>💖</span> 봉사시간 관리
                     <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold" id="volunteer-badge">8/19 누계</span>
                 </button>
-                <button onclick="switchTab('highschool-survey')" id="tab-btn-highschool-survey" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('highschool-survey')" id="tab-btn-highschool-survey" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>🏫</span> 고등학교 선호도
                     <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-rose-100 text-rose-700 font-bold">29명</span>
                 </button>
-                <button onclick="switchTab('notices')" id="tab-btn-notices" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('notices')" id="tab-btn-notices" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>📢</span> 전체 공지
                     <span id="notice-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold">3</span>
                 </button>
-                <button onclick="switchTab('teacher-docs')" id="tab-btn-teacher-docs" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('teacher-docs')" id="tab-btn-teacher-docs" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>📁</span> 담임 자료실
                     <span id="teacher-docs-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-sky-100 text-sky-800 font-bold">2건</span>
                 </button>
-                <button onclick="switchTab('students')" id="tab-btn-students" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('students')" id="tab-btn-students" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>🧑‍🎓</span> 학생 소통칸
                     <span id="student-count-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold">29명</span>
                 </button>
-                <button onclick="switchTab('highschool-docs')" id="tab-btn-highschool-docs" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('highschool-docs')" id="tab-btn-highschool-docs" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>🎓</span> 고등학교 자료실
                     <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-indigo-100 text-indigo-700 font-bold" id="highschool-badge">2건</span>
                 </button>
-                <button onclick="switchTab('roles')" id="tab-btn-roles" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('roles')" id="tab-btn-roles" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>🤝</span> 1인 1역할
                     <span class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-slate-200 text-slate-700 font-bold" id="roles-badge">0개</span>
                 </button>
-                <button onclick="switchTab('traits')" id="tab-btn-traits" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('traits')" id="tab-btn-traits" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-slate-600 flex items-center gap-1.5 shadow-2xs">
                     <span>🏷️</span> 특징 누적부
                 </button>
-                <button onclick="switchTab('private-docs')" id="tab-btn-private-docs" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-amber-700 hover:text-amber-800 flex items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('private-docs')" id="tab-btn-private-docs" class="tab-btn py-2 px-3 text-xs sm:text-sm font-medium text-amber-700 hover:text-amber-800 flex items-center gap-1.5 shadow-2xs">
                     <span>🔐</span> 1:1 비밀 배부함
                     <span id="private-docs-badge" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-bold">2건</span>
                 </button>
-                <button onclick="switchTab('secret-notes')" id="tab-btn-secret-notes" class="tab-btn hidden py-2 px-3 text-xs sm:text-sm font-medium text-rose-600 hover:text-rose-700 items-center gap-1.5 shadow-2xs">
+                <button onclick="window.switchTab('secret-notes')" id="tab-btn-secret-notes" class="tab-btn hidden py-2 px-3 text-xs sm:text-sm font-medium text-rose-600 hover:text-rose-700 items-center gap-1.5 shadow-2xs">
                     <span>🔒</span> 담임 누가기록
                 </button>
             </nav>
@@ -242,7 +282,6 @@
 
     <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
 
-        <!-- 캘린더 탭 -->
         <section id="tab-calendar" class="tab-pane space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -291,7 +330,7 @@
                         <h3 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-1.5">
                             <span>✏️</span> 새 학급 일정 / 상담 등록
                         </h3>
-                        <form id="schedule-form" onsubmit="handleAddSchedule(event)" class="space-y-3 text-xs">
+                        <form id="schedule-form" onsubmit="window.handleAddSchedule(event)" class="space-y-3 text-xs">
                             <div>
                                 <label class="block font-medium text-slate-700 mb-1">대상 구분 / 학생</label>
                                 <select id="sched-student" class="w-full p-2 border border-slate-200 rounded-xl bg-slate-50 focus:ring-1 focus:ring-indigo-500 font-medium"></select>
@@ -332,7 +371,6 @@
             </div>
         </section>
 
-        <!-- 봉사시간 관리 탭 -->
         <section id="tab-volunteer" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
@@ -343,11 +381,11 @@
                         <h2 class="text-lg font-bold text-slate-800">💖 307 학생별 봉사시간 누적 관리부 (총 29명)</h2>
                     </div>
                     <p class="text-xs text-slate-500 mt-1">
-                        ※ 숫자를 직접 타이핑하거나 [+1h], [+2h] 버튼을 클릭해 조절할 수 있습니다.
+                        ※ 숫자를 직접 타이핑하거나 [+1h], [+2h] 버튼을 클릭해 즉시 조절할 수 있습니다.
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                    <button onclick="exportVolunteerCsv()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer">
+                    <button onclick="window.exportVolunteerCsv()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer">
                         <span>📥</span> 봉사시간 명단 다운로드 (CSV)
                     </button>
                 </div>
@@ -383,7 +421,7 @@
                         <span class="text-[11px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold border border-indigo-200">실시간 보존</span>
                     </div>
                     <div class="w-full sm:w-72">
-                        <input type="text" id="volunteer-search-input" onkeyup="renderVolunteerTab()" placeholder="학생 이름, 번호, 시간 검색..." class="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <input type="text" id="volunteer-search-input" onkeyup="window.renderVolunteerTab()" placeholder="학생 이름, 번호, 시간 검색..." class="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     </div>
                 </div>
 
@@ -405,7 +443,6 @@
             </div>
         </section>
 
-        <!-- 고등학교 선호도 탭 -->
         <section id="tab-highschool-survey" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
@@ -420,10 +457,10 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                    <button id="survey-teacher-edit-btn" onclick="promptTeacherEditSchool()" class="hidden px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs items-center gap-1.5 transition-all cursor-pointer">
+                    <button id="survey-teacher-edit-btn" onclick="window.promptTeacherEditSchool()" class="hidden px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs items-center gap-1.5 transition-all cursor-pointer">
                         <span>✏️</span> 학생 고교 변경 (담임 전용)
                     </button>
-                    <button onclick="exportToCsv()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors cursor-pointer">
+                    <button onclick="window.exportToCsv()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors cursor-pointer">
                         📥 명단 다운로드
                     </button>
                 </div>
@@ -446,7 +483,7 @@
                         <span id="survey-table-mode-label" class="text-[11px] px-2 py-0.5 rounded-full font-semibold"></span>
                     </div>
                     <div class="w-full sm:w-64">
-                        <input type="text" id="survey-search-input" onkeyup="renderSurveyTable()" placeholder="학생 이름, 고등학교명 검색..." class="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <input type="text" id="survey-search-input" onkeyup="window.renderSurveyTable()" placeholder="학생 이름, 고등학교명 검색..." class="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     </div>
                 </div>
 
@@ -480,7 +517,7 @@
                     <p class="text-xs text-slate-500 mt-0.5">화면 캡처 후 <strong>Ctrl + V</strong>를 누르면 스크린샷이 즉시 첨부되며, 등록 및 삭제 내역이 실시간 보존됩니다.</p>
                 </div>
                 <div id="notice-create-btn-wrapper" class="hidden">
-                    <button onclick="openNoticeModal()" class="w-full md:w-auto inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer">
+                    <button onclick="window.openNoticeModal()" class="w-full md:w-auto inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer">
                         + 새 공지 작성
                     </button>
                 </div>
@@ -489,21 +526,20 @@
             <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-white p-3 rounded-xl border border-slate-200">
                 <div class="flex flex-wrap gap-1.5 items-center">
                     <span class="text-xs font-bold text-slate-400 mr-1.5">분류:</span>
-                    <button onclick="filterNotices('전체')" class="notice-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체 보기</button>
-                    <button onclick="filterNotices('중요')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🚨 중요</button>
-                    <button onclick="filterNotices('가정통신')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📄 가정통신</button>
-                    <button onclick="filterNotices('준비물')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🎒 준비물</button>
-                    <button onclick="filterNotices('행사')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🎉 행사</button>
+                    <button onclick="window.filterNotices('전체')" class="notice-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체 보기</button>
+                    <button onclick="window.filterNotices('중요')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🚨 중요</button>
+                    <button onclick="window.filterNotices('가정통신')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📄 가정통신</button>
+                    <button onclick="window.filterNotices('준비물')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🎒 준비물</button>
+                    <button onclick="window.filterNotices('행사')" class="notice-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🎉 행사</button>
                 </div>
                 <div class="w-full sm:w-64">
-                    <input type="text" id="notice-search-input" onkeyup="renderNotices()" placeholder="공지 제목 또는 내용 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <input type="text" id="notice-search-input" onkeyup="window.renderNotices()" placeholder="공지 제목 또는 내용 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500">
                 </div>
             </div>
 
             <div id="notice-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
         </section>
 
-        <!-- 담임 자료실 탭 -->
         <section id="tab-teacher-docs" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -513,7 +549,7 @@
                     </div>
                     <p class="text-xs text-slate-500 mt-1">결석신고서, 교외체험학습 양식 등 필수 문서함입니다. (캡처 후 Ctrl+V 붙여넣기 지원)</p>
                 </div>
-                <button id="teacher-doc-upload-btn" onclick="openAddTeacherMaterialModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
+                <button id="teacher-doc-upload-btn" onclick="window.openAddTeacherMaterialModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
                     <span>📤</span> 새 서식/자료 등록 (Ctrl+V 지원)
                 </button>
             </div>
@@ -521,26 +557,25 @@
             <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-white p-3 rounded-xl border border-slate-200">
                 <div class="flex flex-wrap gap-1.5 items-center">
                     <span class="text-xs font-bold text-slate-400 mr-2">서류 구분:</span>
-                    <button onclick="filterTeacherDocs('전체')" class="td-filter-btn active px-3 py-1.5 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체 보기</button>
-                    <button onclick="filterTeacherDocs('출결/결석계')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📋 출결/결석계</button>
-                    <button onclick="filterTeacherDocs('체험학습/신청서')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">✈️ 체험학습/신청서</button>
-                    <button onclick="filterTeacherDocs('학급서식/가이드')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📑 학급서식/가이드</button>
-                    <button onclick="filterTeacherDocs('수업/기타')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📚 수업/기타자료</button>
+                    <button onclick="window.filterTeacherDocs('전체')" class="td-filter-btn active px-3 py-1.5 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체 보기</button>
+                    <button onclick="window.filterTeacherDocs('출결/결석계')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📋 출결/결석계</button>
+                    <button onclick="window.filterTeacherDocs('체험학습/신청서')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">✈️ 체험학습/신청서</button>
+                    <button onclick="window.filterTeacherDocs('학급서식/가이드')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📑 학급서식/가이드</button>
+                    <button onclick="window.filterTeacherDocs('수업/기타')" class="td-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📚 수업/기타자료</button>
                 </div>
                 <div class="w-full sm:w-64">
-                    <input type="text" id="td-search-input" onkeyup="renderTeacherMaterials()" placeholder="서식명 또는 설명 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-sky-500">
+                    <input type="text" id="td-search-input" onkeyup="window.renderTeacherMaterials()" placeholder="서식명 또는 설명 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-sky-500">
                 </div>
             </div>
 
             <div id="teacher-materials-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
         </section>
 
-        <!-- 학생 소통칸 탭 -->
         <section id="tab-students" class="tab-pane hidden space-y-6">
             <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <div class="relative w-full sm:w-80">
-                        <input type="text" id="student-search-input" onkeyup="filterStudents()" placeholder="이름, 번호, 학번 검색..." class="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                        <input type="text" id="student-search-input" onkeyup="window.filterStudents()" placeholder="이름, 번호, 학번 검색..." class="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                 </div>
@@ -548,7 +583,7 @@
                     <span class="text-xs text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-200 font-bold hidden md:inline">
                         📸 캡처 후 <strong>Ctrl + V</strong> 누르면 사진 즉시 첨부!
                     </span>
-                    <button onclick="openNewStudentModal()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer">
+                    <button onclick="window.openNewStudentModal()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer">
                         + 신규 학생 등록
                     </button>
                 </div>
@@ -557,38 +592,36 @@
             <div id="students-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
         </section>
 
-        <!-- 고등학교 진학 자료실 탭 -->
         <section id="tab-highschool-docs" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">🎓 2026 307 고등학교 진학 및 입시 자료실</h2>
                     <p class="text-xs text-slate-500 mt-0.5">전형 요강, 리플릿 사진 캡처본(Ctrl+V)과 안내 문서를 등록합니다.</p>
                 </div>
-                <button onclick="openAddMaterialModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer">
+                <button onclick="window.openAddMaterialModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer">
                     <span>📤</span> 자료 올리기 (Ctrl+V 지원)
                 </button>
             </div>
 
             <div class="flex flex-wrap gap-1.5 items-center bg-white p-3 rounded-xl border border-slate-200">
                 <span class="text-xs font-bold text-slate-400 mr-2">고교 구분:</span>
-                <button onclick="filterHighschool('전체')" class="hs-filter-btn active px-3 py-1.5 text-xs rounded-lg font-bold bg-indigo-600 text-white cursor-pointer">전체 보기</button>
-                <button onclick="filterHighschool('일반고/자율고')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">일반고/자율고</button>
-                <button onclick="filterHighschool('특목고(외고/과고/예체능)')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">특목고</button>
-                <button onclick="filterHighschool('특성화고/마이스터고')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">특성화·마이스터고</button>
-                <button onclick="filterHighschool('설명회/입학요강')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">설명회/가이드</button>
+                <button onclick="window.filterHighschool('전체')" class="hs-filter-btn active px-3 py-1.5 text-xs rounded-lg font-bold bg-indigo-600 text-white cursor-pointer">전체 보기</button>
+                <button onclick="window.filterHighschool('일반고/자율고')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">일반고/자율고</button>
+                <button onclick="window.filterHighschool('특목고(외고/과고/예체능)')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">특목고</button>
+                <button onclick="window.filterHighschool('특성화고/마이스터고')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">특성화·마이스터고</button>
+                <button onclick="window.filterHighschool('설명회/입학요강')" class="hs-filter-btn px-3 py-1.5 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">설명회/가이드</button>
             </div>
 
             <div id="highschool-materials-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
         </section>
 
-        <!-- 역할 분담 탭 -->
         <section id="tab-roles" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">🤝 307 학급 1인 1역할 분담표</h2>
                     <p class="text-xs text-slate-500 mt-0.5">학급 자치 분담 역할 현황표입니다.</p>
                 </div>
-                <button onclick="openAddRoleModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1 cursor-pointer">
+                <button onclick="window.openAddRoleModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1 cursor-pointer">
                     <span>+</span> 신규 역할 추가
                 </button>
             </div>
@@ -596,7 +629,6 @@
             <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </section>
 
-        <!-- 특징 누적부 탭 -->
         <section id="tab-traits" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
@@ -606,8 +638,8 @@
                     </div>
                     <div class="flex flex-wrap gap-1.5 items-center">
                         <span class="text-xs font-semibold text-slate-400 mr-1">태그 필터:</span>
-                        <button onclick="filterTraitsByTag('전체')" class="trait-filter-tag active px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-800 text-white cursor-pointer">전체 (29명)</button>
-                        <button onclick="filterTraitsByTag('다자녀')" class="trait-filter-tag px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">#다자녀 (8명)</button>
+                        <button onclick="window.filterTraitsByTag('전체')" class="trait-filter-tag active px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-800 text-white cursor-pointer">전체 (29명)</button>
+                        <button onclick="window.filterTraitsByTag('다자녀')" class="trait-filter-tag px-2.5 py-1 text-xs rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">#다자녀 (8명)</button>
                     </div>
                 </div>
 
@@ -631,7 +663,6 @@
             </div>
         </section>
 
-        <!-- 1:1 비밀 배부함 탭 -->
         <section id="tab-private-docs" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-amber-200/90 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-amber-50/40 via-white to-white">
                 <div>
@@ -649,7 +680,7 @@
                     </p>
                 </div>
                 <div id="private-teacher-btn-wrapper" class="hidden">
-                    <button onclick="openCreatePrivateDocModal()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                    <button onclick="window.openCreatePrivateDocModal()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer">
                         <span>🔐 +</span> 새 비밀 배부 문서 등록
                     </button>
                 </div>
@@ -658,21 +689,20 @@
             <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-white p-3 rounded-xl border border-slate-200">
                 <div class="flex flex-wrap gap-1.5 items-center">
                     <span class="text-xs font-bold text-slate-400 mr-1.5">구분:</span>
-                    <button onclick="filterPrivateDocs('전체')" class="pdoc-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체 보기</button>
-                    <button onclick="filterPrivateDocs('성적/평가')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📊 성적/평가</button>
-                    <button onclick="filterPrivateDocs('진학/추천서')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🎓 진학/추천서</button>
-                    <button onclick="filterPrivateDocs('상담/소견서')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">💬 상담/소견서</button>
-                    <button onclick="filterPrivateDocs('기타/개별서류')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📑 기타</button>
+                    <button onclick="window.filterPrivateDocs('전체')" class="pdoc-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체 보기</button>
+                    <button onclick="window.filterPrivateDocs('성적/평가')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📊 성적/평가</button>
+                    <button onclick="window.filterPrivateDocs('진학/추천서')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">🎓 진학/추천서</button>
+                    <button onclick="window.filterPrivateDocs('상담/소견서')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">💬 상담/소견서</button>
+                    <button onclick="window.filterPrivateDocs('기타/개별서류')" class="pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">📑 기타</button>
                 </div>
                 <div class="w-full sm:w-64">
-                    <input type="text" id="pdoc-search-input" onkeyup="renderPrivateDocs()" placeholder="문서 제목 또는 학생 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500">
+                    <input type="text" id="pdoc-search-input" onkeyup="window.renderPrivateDocs()" placeholder="문서 제목 또는 학생 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500">
                 </div>
             </div>
 
             <div id="private-docs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
         </section>
 
-        <!-- 담임 누가기록 탭 -->
         <section id="tab-secret-notes" class="tab-pane hidden space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-rose-50/50 via-white to-white">
                 <div>
@@ -689,7 +719,7 @@
                         ※ 주위 시선 보호를 위해 목록에는 제목과 대상 학생만 노출됩니다. 카드를 클릭하면 본문 내용을 열람할 수 있습니다.
                     </p>
                 </div>
-                <button onclick="openSecretNoteModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer">
+                <button onclick="window.openSecretNoteModal()" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer">
                     <span>🔒 +</span> 새 누가기록 작성
                 </button>
             </div>
@@ -697,14 +727,14 @@
             <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-white p-3 rounded-xl border border-slate-200">
                 <div class="flex flex-wrap gap-1.5 items-center">
                     <span class="text-xs font-bold text-slate-400 mr-1.5">유형:</span>
-                    <button onclick="filterSecretNotes('전체')" class="sn-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체</button>
-                    <button onclick="filterSecretNotes('심층상담')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">심층상담</button>
-                    <button onclick="filterSecretNotes('가정환경/복지')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">가정환경/복지</button>
-                    <button onclick="filterSecretNotes('교우관계/학폭주의')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">교우관계/학폭주의</button>
-                    <button onclick="filterSecretNotes('건강/정서배려')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">건강/정서배려</button>
+                    <button onclick="window.filterSecretNotes('전체')" class="sn-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer">전체</button>
+                    <button onclick="window.filterSecretNotes('심층상담')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">심층상담</button>
+                    <button onclick="window.filterSecretNotes('가정환경/복지')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">가정환경/복지</button>
+                    <button onclick="window.filterSecretNotes('교우관계/학폭주의')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">교우관계/학폭주의</button>
+                    <button onclick="window.filterSecretNotes('건강/정서배려')" class="sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">건강/정서배려</button>
                 </div>
                 <div class="w-full sm:w-64">
-                    <input type="text" id="sn-search-input" onkeyup="renderSecretNotes()" placeholder="제목 또는 학생 이름 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500">
+                    <input type="text" id="sn-search-input" onkeyup="window.renderSecretNotes()" placeholder="제목 또는 학생 이름 검색..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-rose-500">
                 </div>
             </div>
 
@@ -719,9 +749,9 @@
                 <div class="flex items-center gap-2">
                     <h3 class="text-base font-bold text-slate-800">📢 새 학급 공지사항 등록</h3>
                 </div>
-                <button type="button" onclick="closeModal('notice-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('notice-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
-            <form onsubmit="handleCreateNotice(event)" class="mt-4 space-y-3.5 text-xs">
+            <form onsubmit="window.handleCreateNotice(event)" class="mt-4 space-y-3.5 text-xs">
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">공지 구분</label>
                     <select id="new-notice-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium">
@@ -740,7 +770,6 @@
                     <textarea id="new-notice-content" required rows="4" placeholder="내용을 입력하세요..." class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-relaxed"></textarea>
                 </div>
 
-                <!-- 캡처 붙여넣기 전용 박스 -->
                 <div class="paste-zone border-2 border-dashed border-indigo-200 rounded-xl p-3.5 bg-indigo-50/40 text-center">
                     <div class="flex items-center justify-between mb-1.5">
                         <span class="font-bold text-slate-700 flex items-center gap-1.5 text-xs">
@@ -755,14 +784,14 @@
                         <button type="button" onclick="document.getElementById('new-notice-file').click()" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-50 cursor-pointer">
                             📁 파일 직접 선택
                         </button>
-                        <input type="file" id="new-notice-file" accept="image/*" multiple onchange="handleNoticeFileSelect(event)" class="hidden">
-                        <button type="button" id="notice-file-clear-btn" onclick="clearNoticeFile()" class="text-rose-500 hover:text-rose-700 text-xs font-bold hidden cursor-pointer">전체 취소</button>
+                        <input type="file" id="new-notice-file" accept="image/*" multiple onchange="window.handleNoticeFileSelect(event)" class="hidden">
+                        <button type="button" id="notice-file-clear-btn" onclick="window.clearNoticeFile()" class="text-rose-500 hover:text-rose-700 text-xs font-bold hidden cursor-pointer">전체 취소</button>
                     </div>
                     <div id="notice-files-preview-box" class="mt-3 hidden flex flex-wrap gap-2 justify-center max-h-32 overflow-y-auto custom-scroll"></div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('notice-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="button" onclick="window.closeModal('notice-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
                     <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer">공지 등록하기</button>
                 </div>
             </form>
@@ -777,9 +806,9 @@
                     <h3 class="text-base font-bold text-slate-800">✏️ 학급 공지사항 수정</h3>
                     <span class="text-[11px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded font-bold">담임 전용</span>
                 </div>
-                <button type="button" onclick="closeModal('edit-notice-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('edit-notice-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
-            <form onsubmit="handleUpdateNotice(event)" class="mt-4 space-y-3.5 text-xs">
+            <form onsubmit="window.handleUpdateNotice(event)" class="mt-4 space-y-3.5 text-xs">
                 <input type="hidden" id="edit-notice-id">
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">공지 구분 변경</label>
@@ -805,11 +834,11 @@
                 </div>
 
                 <div class="flex justify-between items-center pt-2">
-                    <button type="button" onclick="deleteNoticeFromEditModal()" class="px-3.5 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-lg border border-rose-200 transition-colors flex items-center gap-1 cursor-pointer">
+                    <button type="button" onclick="window.deleteNoticeFromEditModal()" class="px-3.5 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-lg border border-rose-200 transition-colors flex items-center gap-1 cursor-pointer">
                         <span>🗑️</span> 이 공지 삭제
                     </button>
                     <div class="flex gap-2">
-                        <button type="button" onclick="closeModal('edit-notice-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                        <button type="button" onclick="window.closeModal('edit-notice-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
                         <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer">수정 완료</button>
                     </div>
                 </div>
@@ -825,9 +854,9 @@
                     <span class="text-xl">📁</span>
                     <h3 class="text-base font-bold text-slate-800">담임 자료실 서식 등록</h3>
                 </div>
-                <button type="button" onclick="closeModal('teacher-material-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('teacher-material-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
-            <form onsubmit="handleCreateTeacherMaterial(event)" class="mt-4 space-y-3.5 text-xs">
+            <form onsubmit="window.handleCreateTeacherMaterial(event)" class="mt-4 space-y-3.5 text-xs">
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">서류 분류</label>
                     <select id="new-td-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-sky-500 font-medium">
@@ -848,7 +877,7 @@
                 
                 <div class="paste-zone border-2 border-dashed border-sky-200 rounded-xl p-4 text-center bg-sky-50/40">
                     <p class="text-[11px] text-sky-800 font-bold mb-1.5">📸 서식 사진 캡처 후 <strong>Ctrl + V</strong> 누르면 즉시 첨부됩니다!</p>
-                    <input type="file" id="new-td-file" accept="image/*" multiple onchange="handleTeacherMaterialFileSelect(event)" class="hidden">
+                    <input type="file" id="new-td-file" accept="image/*" multiple onchange="window.handleTeacherMaterialFileSelect(event)" class="hidden">
                     <button type="button" onclick="document.getElementById('new-td-file').click()" class="px-3.5 py-1.5 bg-white border border-sky-300 rounded-lg text-xs font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">
                         📎 파일 직접 선택
                     </button>
@@ -856,7 +885,7 @@
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('teacher-material-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="button" onclick="window.closeModal('teacher-material-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
                     <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg cursor-pointer">자료실에 올리기</button>
                 </div>
             </form>
@@ -868,9 +897,9 @@
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                 <h3 class="text-base font-bold text-slate-800">🎓 고등학교 진학 자료 업로드</h3>
-                <button type="button" onclick="closeModal('material-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('material-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
-            <form onsubmit="handleCreateMaterial(event)" class="mt-4 space-y-3.5 text-xs">
+            <form onsubmit="window.handleCreateMaterial(event)" class="mt-4 space-y-3.5 text-xs">
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">고등학교 구분 / 카테고리</label>
                     <select id="new-mat-category" class="w-full p-2 border border-slate-200 rounded-lg font-medium">
@@ -891,7 +920,7 @@
                 
                 <div class="paste-zone border-2 border-dashed border-indigo-200 rounded-xl p-4 text-center bg-indigo-50/30">
                     <p class="text-[11px] text-indigo-700 font-bold mb-1">📸 포스터나 문서 캡처 후 <strong>Ctrl + V</strong>를 누르세요!</p>
-                    <input type="file" id="new-mat-file" accept="image/*" multiple onchange="handleMaterialFileSelect(event)" class="hidden">
+                    <input type="file" id="new-mat-file" accept="image/*" multiple onchange="window.handleMaterialFileSelect(event)" class="hidden">
                     <button type="button" onclick="document.getElementById('new-mat-file').click()" class="px-3 py-1.5 bg-white border border-indigo-200 rounded-lg text-xs font-bold text-indigo-700 hover:bg-indigo-50 cursor-pointer">
                         📎 파일 선택
                     </button>
@@ -899,7 +928,7 @@
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('material-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="button" onclick="window.closeModal('material-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
                     <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer">자료 등록 완료</button>
                 </div>
             </form>
@@ -914,7 +943,7 @@
                     <h3 class="text-sm font-bold text-slate-800">🏫 희망 고등학교 변경</h3>
                     <span class="text-[10px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-bold">담임 권한</span>
                 </div>
-                <button type="button" onclick="closeModal('edit-hs-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('edit-hs-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
             <div class="mt-4 space-y-3 text-xs">
                 <p id="edit-hs-student-name" class="font-bold text-indigo-600">학생: 1번 강유진</p>
@@ -928,18 +957,18 @@
                 <div>
                     <label class="block text-[11px] text-slate-500 mb-1.5 font-medium">자주 선택하는 고등학교:</label>
                     <div class="flex flex-wrap gap-1">
-                        <button type="button" onclick="setPresetHsModal('백석')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">백석</button>
-                        <button type="button" onclick="setPresetHsModal('아라')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">아라</button>
-                        <button type="button" onclick="setPresetHsModal('마전')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">마전</button>
-                        <button type="button" onclick="setPresetHsModal('이음')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">이음</button>
-                        <button type="button" onclick="setPresetHsModal('문곡')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">문곡</button>
-                        <button type="button" onclick="setPresetHsModal('원당')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">원당</button>
+                        <button type="button" onclick="window.setPresetHsModal('백석')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">백석</button>
+                        <button type="button" onclick="window.setPresetHsModal('아라')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">아라</button>
+                        <button type="button" onclick="window.setPresetHsModal('마전')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">마전</button>
+                        <button type="button" onclick="window.setPresetHsModal('이음')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">이음</button>
+                        <button type="button" onclick="window.setPresetHsModal('문곡')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">문곡</button>
+                        <button type="button" onclick="window.setPresetHsModal('원당')" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-[11px] font-medium border border-slate-200 cursor-pointer">원당</button>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeModal('edit-hs-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
-                    <button type="button" onclick="saveHighSchoolModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer">변경 저장</button>
+                    <button type="button" onclick="window.closeModal('edit-hs-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="button" onclick="window.saveHighSchoolModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer">변경 저장</button>
                 </div>
             </div>
         </div>
@@ -950,9 +979,9 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                 <h3 class="text-base font-bold text-slate-800">🤝 신규 1인 1역할 배정</h3>
-                <button type="button" onclick="closeModal('role-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('role-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
-            <form onsubmit="handleCreateRole(event)" class="mt-4 space-y-3.5 text-xs">
+            <form onsubmit="window.handleCreateRole(event)" class="mt-4 space-y-3.5 text-xs">
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">역할 명칭</label>
                     <input type="text" id="new-role-title" required placeholder="예: 칠판 및 보드마카 관리관" class="w-full p-2 border border-slate-200 rounded-lg">
@@ -966,7 +995,7 @@
                     <textarea id="new-role-desc" required rows="2" placeholder="매 교시 종료 후 칠판 지우기 및 분필 가루 청소" class="w-full p-2 border border-slate-200 rounded-lg"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('role-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="button" onclick="window.closeModal('role-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
                     <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg cursor-pointer">역할 등록</button>
                 </div>
             </form>
@@ -978,9 +1007,9 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
             <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                 <h3 class="text-base font-bold text-slate-800">🧑‍🎓 신규 학생 프로필 등록</h3>
-                <button type="button" onclick="closeModal('student-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+                <button type="button" onclick="window.closeModal('student-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
             </div>
-            <form onsubmit="handleCreateStudent(event)" class="mt-4 space-y-3 text-xs">
+            <form onsubmit="window.handleCreateStudent(event)" class="mt-4 space-y-3 text-xs">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-medium text-slate-700 mb-1">학번</label>
@@ -1006,7 +1035,7 @@
                     <label for="new-student-is-multichild" class="font-bold text-slate-700">다자녀 가정 학생</label>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('student-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="button" onclick="window.closeModal('student-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
                     <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg cursor-pointer">등록 완료</button>
                 </div>
             </form>
@@ -1021,33 +1050,245 @@
             <input type="hidden" id="tag-target-student-id">
             <input type="text" id="new-tag-input" placeholder="태그 입력 (예: 반장, 방송부)" class="w-full p-2 text-xs border border-slate-200 rounded-lg mb-3">
             <div class="flex justify-end gap-2">
-                <button type="button" onclick="closeModal('add-tag-modal')" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs rounded-lg cursor-pointer">취소</button>
-                <button type="button" onclick="confirmAddTag()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg font-medium cursor-pointer">추가</button>
+                <button type="button" onclick="window.closeModal('add-tag-modal')" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs rounded-lg cursor-pointer">취소</button>
+                <button type="button" onclick="window.confirmAddTag()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-lg font-medium cursor-pointer">추가</button>
             </div>
+        </div>
+    </div>
+
+    <!-- [MODAL] 새 1:1 비밀 배부 문서 등록 모달 (담임 전용) -->
+    <div id="create-private-doc-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-amber-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🔐</span>
+                    <h3 class="text-base font-bold text-slate-800">새 1:1 비밀 배부 문서 등록</h3>
+                </div>
+                <button type="button" onclick="window.closeModal('create-private-doc-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+            </div>
+            <form onsubmit="window.handleCreatePrivateDoc(event)" class="mt-4 space-y-3.5 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">문서 분류</label>
+                        <select id="new-pdoc-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 font-medium">
+                            <option value="성적/평가">📊 성적표 / 지필·수행 분석서</option>
+                            <option value="진학/추천서">🎓 진학 상담 자료 / 추천서 초안</option>
+                            <option value="상담/소견서">💬 심층 상담 소견서 / 전달 서류</option>
+                            <option value="기타/개별서류">📑 기타 민감 개별 안내 서류</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">수신 학생 선택 (29명 중)</label>
+                        <select id="new-pdoc-student" required class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 font-medium"></select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">문서 제목</label>
+                    <input type="text" id="new-pdoc-title" required placeholder="예: 1학기 지필·수행 종합 성적 통지표 및 과목별 소견서" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 font-bold">
+                </div>
+
+                <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
+                    <label class="block font-bold text-amber-900 mb-1">🔑 해당 학생 전용 열람 비밀번호 설정</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="new-pdoc-password" required maxlength="12" placeholder="예: 3071 또는 학생 생일" class="w-full p-2 bg-white border border-amber-300 rounded-lg text-sm font-black tracking-wider text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <button type="button" onclick="window.generateRandomPin()" class="px-3 py-2 bg-white border border-amber-300 text-amber-700 hover:bg-amber-100 rounded-lg font-bold flex-shrink-0 cursor-pointer">
+                            랜덤 생성
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-amber-700 mt-1">※ 이 비밀번호를 학생에게 직접 알려주시면 학생이 비밀번호를 입력해 문서를 열람할 수 있습니다.</p>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">학생에게 남길 개별 전달 안내문</label>
+                    <textarea id="new-pdoc-memo" rows="3" placeholder="문서에 대한 피드백이나 학생이 확인할 사항을 작성하세요..." class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500 leading-relaxed"></textarea>
+                </div>
+
+                <!-- 캡처 사진 Ctrl+V 붙여넣기 구역 -->
+                <div class="paste-zone border-2 border-dashed border-amber-200 rounded-xl p-3.5 bg-amber-50/40 text-center">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="font-bold text-amber-900 flex items-center gap-1.5 text-xs">
+                            <span>📸</span> 캡처 사진 붙여넣기 (Ctrl + V)
+                        </span>
+                        <span class="text-[10px] text-amber-800 font-extrabold bg-white px-2 py-0.5 rounded border border-amber-300">
+                            단축키 감지
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mb-2">성적표나 서식을 화면 캡처한 후 <strong>Ctrl + V</strong>를 누르면 스크린샷이 즉시 추가됩니다.</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <button type="button" onclick="document.getElementById('new-pdoc-file').click()" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-800 rounded-lg text-xs font-bold hover:bg-amber-50 cursor-pointer">
+                            📁 파일 직접 선택
+                        </button>
+                        <input type="file" id="new-pdoc-file" accept="image/*" multiple onchange="window.handlePrivateDocFileSelect(event)" class="hidden">
+                        <button type="button" id="pdoc-file-clear-btn" onclick="window.clearPrivateDocFiles()" class="text-rose-500 hover:text-rose-700 text-xs font-bold hidden cursor-pointer">전체 취소</button>
+                    </div>
+                    <div id="pdoc-files-preview-box" class="mt-3 hidden flex flex-wrap gap-2 justify-center max-h-32 overflow-y-auto custom-scroll"></div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="window.closeModal('create-private-doc-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg shadow-xs cursor-pointer">비밀 배부함에 등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 학생 비밀번호 잠금 해제 모달 -->
+    <div id="unlock-private-doc-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-amber-100 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-2.5 text-2xl font-black shadow-xs">
+                🔐
+            </div>
+            <h3 class="text-base font-extrabold text-slate-800">비밀 문서 잠금 해제</h3>
+            <p id="unlock-modal-title" class="text-xs font-bold text-indigo-600 mt-1 truncate px-2"></p>
+            <p class="text-xs text-slate-500 mt-1">
+                선생님께서 알려주신 비밀번호를 입력하세요.<br>
+                잠금이 해제되면 사진과 내용이 공개됩니다.
+            </p>
+
+            <form onsubmit="window.handleUnlockPrivateDoc(event)" class="mt-4 space-y-3.5 text-xs">
+                <input type="hidden" id="unlock-target-id">
+                <div>
+                    <input type="password" id="unlock-password-input" maxlength="20" placeholder="열람 비밀번호 입력" autofocus required class="w-full text-center tracking-widest text-lg font-black p-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50">
+                    <p id="unlock-error-msg" class="text-[11px] text-rose-600 font-bold mt-1.5 hidden">
+                        비밀번호가 일치하지 않습니다. 선생님께 확인해 보세요.
+                    </p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="window.closeModal('unlock-private-doc-modal')" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer">
+                        닫기
+                    </button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-colors shadow-xs cursor-pointer">
+                        잠금 풀기 🔓
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 새 담임 누가기록 작성 모달 -->
+    <div id="secret-note-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-rose-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🔒</span>
+                    <h3 class="text-base font-bold text-slate-800">새 담임 누가기록 작성</h3>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700">학생 비공개</span>
+                </div>
+                <button type="button" onclick="window.closeModal('secret-note-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+            </div>
+            <form onsubmit="window.handleCreateSecretNote(event)" class="mt-4 space-y-3.5 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">기록 분류</label>
+                        <select id="new-sn-category" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-500 font-medium">
+                            <option value="심층상담">💬 심층상담 기록</option>
+                            <option value="가정환경/복지">🏠 가정환경 / 복지 배려</option>
+                            <option value="교우관계/학폭주의">⚠️ 교우관계 / 갈등·학폭 주의</option>
+                            <option value="건강/정서배려">🩺 건강 질환 / 정서 배려</option>
+                            <option value="일반비밀메모">📝 일반 관찰 메모</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-slate-700 mb-1">관련 학생 (선택)</label>
+                        <select id="new-sn-student" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-500 font-medium"></select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">기록 제목 (목록에 노출되는 문구)</label>
+                    <input type="text" id="new-sn-title" required placeholder="예: OO학생 1학기 교우관계 상담 및 특이사항" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-500 font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">상세 기록 내용 (클릭 시에만 열람 가능)</label>
+                    <textarea id="new-sn-content" required rows="5" placeholder="외부에 공개되지 않는 세부 상담 내용, 관찰 사실, 유의사항을 자유롭게 작성하세요..." class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-500 leading-relaxed"></textarea>
+                </div>
+
+                <!-- 캡처 사진 Ctrl+V 붙여넣기 구역 -->
+                <div class="paste-zone border-2 border-dashed border-rose-200 rounded-xl p-3.5 bg-rose-50/40 text-center">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="font-bold text-rose-900 flex items-center gap-1.5 text-xs">
+                            <span>📸</span> 캡처 사진 붙여넣기 (Ctrl + V)
+                        </span>
+                        <span class="text-[10px] text-rose-800 font-extrabold bg-white px-2 py-0.5 rounded border border-rose-300">
+                            단축키 감지
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mb-2">상담 메모나 화면 캡처 후 <strong>Ctrl + V</strong>를 누르면 스크린샷이 즉시 추가됩니다.</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <button type="button" onclick="document.getElementById('new-sn-file').click()" class="px-3 py-1.5 bg-white border border-rose-300 text-rose-800 rounded-lg text-xs font-bold hover:bg-rose-50 cursor-pointer">
+                            📁 파일 직접 선택
+                        </button>
+                        <input type="file" id="new-sn-file" accept="image/*" multiple onchange="window.handleSecretNoteFileSelect(event)" class="hidden">
+                        <button type="button" id="sn-file-clear-btn" onclick="window.clearSecretNoteFiles()" class="text-rose-500 hover:text-rose-700 text-xs font-bold hidden cursor-pointer">전체 취소</button>
+                    </div>
+                    <div id="sn-files-preview-box" class="mt-3 hidden flex flex-wrap gap-2 justify-center max-h-32 overflow-y-auto custom-scroll"></div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="window.closeModal('secret-note-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg cursor-pointer">누가기록 저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [MODAL] 누가기록 상세 열람 및 수정 모달 -->
+    <div id="secret-note-detail-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs hidden p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-rose-100">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🔒</span>
+                    <h3 class="text-base font-bold text-slate-800">담임 누가기록 열람 및 수정</h3>
+                </div>
+                <button type="button" onclick="window.closeModal('secret-note-detail-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">×</button>
+            </div>
+            <form onsubmit="window.handleUpdateSecretNote(event)" class="mt-4 space-y-3.5 text-xs">
+                <input type="hidden" id="detail-sn-id">
+                <div class="flex items-center justify-between text-slate-500 pb-1">
+                    <span id="detail-sn-date-info" class="text-[11px]"></span>
+                    <span id="detail-sn-student-badge" class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[11px]"></span>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">분류 변경</label>
+                    <select id="detail-sn-category" class="w-full p-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-500">
+                        <option value="심층상담">💬 심층상담 기록</option>
+                        <option value="가정환경/복지">🏠 가정환경 / 복지 배려</option>
+                        <option value="교우관계/학폭주의">⚠️ 교우관계 / 갈등·학폭 주의</option>
+                        <option value="건강/정서배려">🩺 건강 질환 / 정서 배려</option>
+                        <option value="일반비밀메모">📝 일반 관찰 메모</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">제목</label>
+                    <input type="text" id="detail-sn-title" required class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 font-bold text-slate-800 text-sm">
+                </div>
+                <div>
+                    <label class="block font-medium text-slate-700 mb-1">상세 기록 내용</label>
+                    <textarea id="detail-sn-content" required rows="6" class="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-500 leading-relaxed"></textarea>
+                </div>
+
+                <div class="paste-zone border-2 border-dashed border-rose-200 rounded-xl p-3 bg-rose-50/30 text-center">
+                    <p class="text-[11px] text-rose-700 font-bold mb-1">📸 캡처 후 <strong>Ctrl + V</strong>를 누르면 스크린샷이 추가됩니다.</p>
+                    <div id="detail-sn-files-preview-box" class="mt-2 hidden flex flex-wrap gap-2 justify-center max-h-28 overflow-y-auto custom-scroll"></div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                    <button type="button" onclick="window.deleteSecretNoteFromModal()" class="px-3.5 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold rounded-lg border border-rose-200 transition-colors flex items-center gap-1 cursor-pointer">
+                        <span>🗑️</span> 이 누가기록 삭제
+                    </button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="window.closeModal('secret-note-detail-modal')" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg cursor-pointer">닫기</button>
+                        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg cursor-pointer">내용 수정</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // 사용자 스크린샷 기반 파이어베이스 정식 설정 정보
-        const userProvidedConfig = {
-            apiKey: "AIzaSyCgAvzXn5V_MA1jqEJuvREI4caqBlv35U4",
-            authDomain: "jari-5c613.firebaseapp.com",
-            projectId: "jari-5c613",
-            storageBucket: "jari-5c613.firebasestorage.app",
-            messagingSenderId: "632470920233",
-            appId: "1:632470920233:web:bc7c8e79cfdd29f503d038",
-            measurementId: "G-PHBJ7PN2KX"
-        };
-
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userProvidedConfig;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jari-5c613';
-
+    <script>
+        const STORAGE_KEY = 'class307_hub_state_v2';
         const TEACHER_LOGIN_PASSWORD = '7362';
 
         const rawStudentRoster = [
@@ -1233,63 +1474,31 @@
             unlockedDeliveries: {}
         };
 
-        let db = null;
-        let auth = null;
-        let sharedDocRef = null;
-        let isSaving = false;
-
-        async function initCloudSync() {
+        // 로컬스토리지 로드 (저장 후 다시 열어도 완벽 보존)
+        function loadLocalStorageState() {
             try {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // 규칙에 따른 표준 공유 문서 경로 지정
-                sharedDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'class_hub', 'current_state');
-
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                updateSyncBadge('online');
-
-                onSnapshot(sharedDocRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.data();
-                        if (data) {
-                            if (Array.isArray(data.students)) state.students = data.students;
-                            if (Array.isArray(data.notices)) state.notices = data.notices;
-                            if (Array.isArray(data.teacherMaterials)) state.teacherMaterials = data.teacherMaterials;
-                            if (Array.isArray(data.highSchoolMaterials)) state.highSchoolMaterials = data.highSchoolMaterials;
-                            if (Array.isArray(data.roles)) state.roles = data.roles;
-                            if (Array.isArray(data.schedules)) state.schedules = data.schedules;
-                            if (Array.isArray(data.secretNotes)) state.secretNotes = data.secretNotes;
-                            if (Array.isArray(data.privateDeliveries)) state.privateDeliveries = data.privateDeliveries;
-                            renderAll();
-                            updateSyncBadge('online');
-                        }
-                    } else {
-                        // 최초 생성 시 기본 데이터 보존
-                        saveToCloud();
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed) {
+                        if (Array.isArray(parsed.students)) state.students = parsed.students;
+                        if (Array.isArray(parsed.notices)) state.notices = parsed.notices;
+                        if (Array.isArray(parsed.teacherMaterials)) state.teacherMaterials = parsed.teacherMaterials;
+                        if (Array.isArray(parsed.highSchoolMaterials)) state.highSchoolMaterials = parsed.highSchoolMaterials;
+                        if (Array.isArray(parsed.roles)) state.roles = parsed.roles;
+                        if (Array.isArray(parsed.schedules)) state.schedules = parsed.schedules;
+                        if (Array.isArray(parsed.secretNotes)) state.secretNotes = parsed.secretNotes;
+                        if (Array.isArray(parsed.privateDeliveries)) state.privateDeliveries = parsed.privateDeliveries;
                     }
-                }, (error) => {
-                    console.error("Firestore sync error:", error);
-                    updateSyncBadge('error');
-                });
-            } catch (err) {
-                console.error("Cloud init error:", err);
-                updateSyncBadge('error');
+                }
+            } catch(e) {
+                console.warn("LocalStorage load error:", e);
             }
         }
 
-        async function saveToCloud() {
-            if (!auth || !auth.currentUser || !db || !sharedDocRef || isSaving) return;
-            isSaving = true;
-            updateSyncBadge('saving');
+        function saveLocalStorageState() {
             try {
-                await setDoc(sharedDocRef, {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
                     students: state.students,
                     notices: state.notices,
                     teacherMaterials: state.teacherMaterials,
@@ -1299,180 +1508,26 @@
                     secretNotes: state.secretNotes,
                     privateDeliveries: state.privateDeliveries,
                     updatedAt: new Date().toISOString()
-                });
-                updateSyncBadge('online');
-            } catch (e) {
-                console.error("Cloud save failed:", e);
-                updateSyncBadge('error');
-            } finally {
-                isSaving = false;
+                }));
+            } catch(e) {
+                console.warn("LocalStorage save error:", e);
             }
         }
-
-        function updateSyncBadge(status) {
-            const badge = document.getElementById('sync-status-badge');
-            if (!badge) return;
-            if (status === 'saving') {
-                badge.innerHTML = `<span>⏳ 클라우드 저장 중...</span>`;
-                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200';
-            } else if (status === 'online') {
-                badge.innerHTML = `<span>☁️ 파이어베이스 연동 중</span>`;
-                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
-            } else if (status === 'error') {
-                badge.innerHTML = `<span>⚠️ 로컬 세션 보존 중</span>`;
-                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200';
-            }
-        }
-
-        let pendingNoticeFiles = [];
-        let pendingEditNoticeFiles = [];
-        let pendingTeacherMaterialFiles = [];
-        let pendingHighSchoolFiles = [];
-        const pendingFiles = {};
-
-        function compressImageData(dataUrl, maxWidth = 480, quality = 0.5) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let { width, height } = img;
-                    if (width > maxWidth) {
-                        height = Math.round((height * maxWidth) / width);
-                        width = maxWidth;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', quality));
-                };
-                img.onerror = () => resolve(dataUrl);
-                img.src = dataUrl;
-            });
-        }
-
-        async function fileToDataUrl(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    const compressed = await compressImageData(ev.target.result, 480, 0.5);
-                    resolve(compressed);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function getClipboardImageFile(e) {
-            if (!e.clipboardData || !e.clipboardData.items) return null;
-            for (let i = 0; i < e.clipboardData.items.length; i++) {
-                const item = e.clipboardData.items[i];
-                if (item.type && item.type.indexOf('image') !== -1) {
-                    return item.getAsFile();
-                }
-            }
-            return null;
-        }
-
-        window.addEventListener('paste', async (e) => {
-            const imageFile = getClipboardImageFile(e);
-            if (!imageFile) return;
-
-            const now = new Date();
-            const timeCode = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
-            const fileName = `캡처사진_${timeCode}.jpg`;
-            const dataUrl = await fileToDataUrl(imageFile);
-
-            const fileObj = {
-                name: fileName,
-                type: 'image',
-                dataUrl: dataUrl,
-                size: '경량 캡처'
-            };
-
-            const noticeModal = document.getElementById('notice-modal');
-            if (noticeModal && !noticeModal.classList.contains('hidden')) {
-                pendingNoticeFiles.push(fileObj);
-                const clearBtn = document.getElementById('notice-file-clear-btn');
-                const previewBox = document.getElementById('notice-files-preview-box');
-                if (clearBtn) clearBtn.classList.remove('hidden');
-                if (previewBox) {
-                    previewBox.classList.remove('hidden');
-                    const img = document.createElement('img');
-                    img.src = dataUrl;
-                    img.className = "w-16 h-16 object-cover rounded-xl border border-indigo-300 shadow-sm";
-                    previewBox.appendChild(img);
-                }
-                showToast('📸 캡처 사진이 공지사항에 붙여넣어졌습니다!', 'success');
-                return;
-            }
-
-            const editNoticeModal = document.getElementById('edit-notice-modal');
-            if (editNoticeModal && !editNoticeModal.classList.contains('hidden')) {
-                pendingEditNoticeFiles.push(fileObj);
-                updateEditNoticeFilesPreview();
-                showToast('📸 캡처 사진이 수정 공지에 추가되었습니다!', 'success');
-                return;
-            }
-
-            const tdModal = document.getElementById('teacher-material-modal');
-            if (tdModal && !tdModal.classList.contains('hidden')) {
-                pendingTeacherMaterialFiles.push(fileObj);
-                const previewBox = document.getElementById('td-file-list-preview');
-                if (previewBox) {
-                    const chip = document.createElement('span');
-                    chip.className = "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-sky-100 text-sky-800 border border-sky-200 truncate";
-                    chip.innerText = `🖼️ ${fileName}`;
-                    previewBox.appendChild(chip);
-                }
-                showToast('📸 캡처 사진이 자료실 서식에 첨부되었습니다!', 'success');
-                return;
-            }
-
-            const matModal = document.getElementById('material-modal');
-            if (matModal && !matModal.classList.contains('hidden')) {
-                pendingHighSchoolFiles.push(fileObj);
-                const previewBox = document.getElementById('mat-files-preview-box');
-                if (previewBox) {
-                    const chip = document.createElement('span');
-                    chip.className = "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 truncate";
-                    chip.innerText = `🖼️ ${fileName}`;
-                    previewBox.appendChild(chip);
-                }
-                showToast('📸 캡처 사진이 고교 자료에 첨부되었습니다!', 'success');
-                return;
-            }
-
-            const activeElem = document.activeElement;
-            let targetStudentId = null;
-            if (activeElem && activeElem.id && activeElem.id.startsWith('input-msg-')) {
-                targetStudentId = activeElem.id.replace('input-msg-', '');
-            } else if (state.activeTab === 'students') {
-                const myStudent = state.students.find(s => s.studentId === state.currentUser.studentId || s.name === state.currentUser.name);
-                targetStudentId = myStudent ? myStudent.id : state.students[0]?.id;
-            }
-
-            if (targetStudentId) {
-                pendingFiles[targetStudentId] = dataUrl;
-                const indicator = document.getElementById(`file-indicator-${targetStudentId}`);
-                if (indicator) {
-                    indicator.classList.remove('hidden');
-                    indicator.innerHTML = `
-                        <span>📸 캡처 사진 붙여넣기 완료 (${fileName})</span>
-                        <button type="button" onclick="clearSelectedFile(${targetStudentId})" class="text-rose-500 font-bold ml-1 cursor-pointer">취소</button>
-                    `;
-                }
-                showToast(`🧑‍🎓 소통 메시지에 캡처 사진이 등록되었습니다! [등록]을 눌러주세요.`, 'success');
-            }
-        });
 
         function openModal(id) {
             const el = document.getElementById(id);
-            if (el) el.classList.remove('hidden');
+            if (el) {
+                el.classList.remove('hidden');
+                el.style.display = 'flex';
+            }
         }
 
         function closeModal(id) {
             const el = document.getElementById(id);
-            if (el) el.classList.add('hidden');
+            if (el) {
+                el.classList.add('hidden');
+                el.style.display = 'none';
+            }
         }
 
         function showToast(msg, type = 'info') {
@@ -1490,11 +1545,79 @@
             }, 2500);
         }
 
+        function switchLoginTab(tab) {
+            const pStudent = document.getElementById('panel-login-student');
+            const pTeacher = document.getElementById('panel-login-teacher');
+            const bStudent = document.getElementById('btn-login-tab-student');
+            const bTeacher = document.getElementById('btn-login-tab-teacher');
+
+            if (tab === 'teacher') {
+                if (pStudent) pStudent.classList.add('hidden');
+                if (pTeacher) {
+                    pTeacher.classList.remove('hidden');
+                    pTeacher.style.display = 'block';
+                }
+                if (bStudent) {
+                    bStudent.className = 'w-1/2 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800 cursor-pointer';
+                }
+                if (bTeacher) {
+                    bTeacher.className = 'w-1/2 py-2 text-xs font-bold rounded-xl transition-all bg-white text-rose-700 shadow-xs cursor-pointer';
+                }
+                setTimeout(() => {
+                    document.getElementById('direct-teacher-password')?.focus();
+                }, 100);
+            } else {
+                if (pTeacher) {
+                    pTeacher.classList.add('hidden');
+                    pTeacher.style.display = 'none';
+                }
+                if (pStudent) {
+                    pStudent.classList.remove('hidden');
+                    pStudent.style.display = 'block';
+                }
+                if (bStudent) {
+                    bStudent.className = 'w-1/2 py-2 text-xs font-bold rounded-xl transition-all bg-white text-indigo-700 shadow-xs cursor-pointer';
+                }
+                if (bTeacher) {
+                    bTeacher.className = 'w-1/2 py-2 text-xs font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800 cursor-pointer';
+                }
+            }
+        }
+
+        function handleDirectTeacherLogin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('direct-teacher-password');
+            const errEl = document.getElementById('direct-teacher-error');
+            const entered = input ? input.value.trim() : '';
+
+            if (entered === TEACHER_LOGIN_PASSWORD) {
+                if (errEl) errEl.classList.add('hidden');
+                state.currentUser = {
+                    studentId: 'T001',
+                    name: '담임선생님',
+                    role: 'teacher'
+                };
+                completeLogin();
+            } else {
+                if (errEl) {
+                    errEl.classList.remove('hidden');
+                    errEl.style.display = 'block';
+                }
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+            }
+        }
+
         function openTeacherAuthModal() {
             const pwdInput = document.getElementById('teacher-login-password');
             const errText = document.getElementById('teacher-login-error');
             if (pwdInput) pwdInput.value = '';
-            if (errText) errText.classList.add('hidden');
+            if (errText) {
+                errText.classList.add('hidden');
+                errText.style.display = 'none';
+            }
             openModal('teacher-auth-modal');
             setTimeout(() => {
                 if (pwdInput) pwdInput.focus();
@@ -1516,7 +1639,10 @@
                 };
                 completeLogin();
             } else {
-                if (errText) errText.classList.remove('hidden');
+                if (errText) {
+                    errText.classList.remove('hidden');
+                    errText.style.display = 'block';
+                }
                 if (pwdInput) {
                     pwdInput.value = '';
                     pwdInput.focus();
@@ -1531,10 +1657,13 @@
             const studentId = idInput ? idInput.value.trim() : '';
             const name = nameInput ? nameInput.value.trim() : '';
 
-            if (!studentId || !name) return;
+            if (!studentId && !name) {
+                showToast('학번 또는 이름을 입력하세요.', 'error');
+                return;
+            }
 
             if (name.includes('선생') || studentId.toLowerCase().startsWith('t') || name.includes('담임')) {
-                openTeacherAuthModal();
+                switchLoginTab('teacher');
                 return;
             }
 
@@ -1549,18 +1678,22 @@
         }
 
         function quickLogin(studentId, name, role) {
-            state.currentUser = { studentId, name, role };
+            state.currentUser = { studentId, name, role: role || 'student' };
             completeLogin();
         }
 
         function completeLogin() {
             state.isLoggedIn = true;
             const overlay = document.getElementById('login-overlay');
-            if (overlay) overlay.classList.add('hidden');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
+            }
 
             const badge = document.getElementById('header-user-badge');
             const nameLabel = document.getElementById('current-user-name');
             const headerAddNoticeBtn = document.getElementById('header-add-notice-btn');
+            const headerTeacherAuthBtn = document.getElementById('header-teacher-auth-btn');
             const noticeRoleBadge = document.getElementById('notice-role-badge');
             const noticeCreateBtnWrapper = document.getElementById('notice-create-btn-wrapper');
             const surveyTeacherEditBtn = document.getElementById('survey-teacher-edit-btn');
@@ -1579,6 +1712,10 @@
                     badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200';
                 }
                 if (nameLabel) nameLabel.innerText = `👨‍🏫 ${state.currentUser.name}`;
+                if (headerTeacherAuthBtn) {
+                    headerTeacherAuthBtn.innerHTML = '<span>🧑‍🎓</span> 학생모드 전환';
+                    headerTeacherAuthBtn.onclick = () => window.handleLogout();
+                }
 
                 if (headerAddNoticeBtn) headerAddNoticeBtn.classList.remove('hidden');
                 if (noticeCreateBtnWrapper) noticeCreateBtnWrapper.classList.remove('hidden');
@@ -1609,6 +1746,10 @@
                     badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200';
                 }
                 if (nameLabel) nameLabel.innerText = `🧑‍🎓 ${state.currentUser.studentId} ${state.currentUser.name}`;
+                if (headerTeacherAuthBtn) {
+                    headerTeacherAuthBtn.innerHTML = '<span>🔒</span> 담임 로그인';
+                    headerTeacherAuthBtn.onclick = () => window.openTeacherAuthModal();
+                }
 
                 if (headerAddNoticeBtn) headerAddNoticeBtn.classList.add('hidden');
                 if (noticeCreateBtnWrapper) noticeCreateBtnWrapper.classList.add('hidden');
@@ -1642,7 +1783,11 @@
         function handleLogout() {
             state.isLoggedIn = false;
             const overlay = document.getElementById('login-overlay');
-            if (overlay) overlay.classList.remove('hidden');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'flex';
+            }
+            switchLoginTab('student');
         }
 
         function switchTab(tabId) {
@@ -1746,7 +1891,7 @@
                         <p class="text-xs text-slate-700 mt-1 font-semibold">${sch.memo || '메모 없음'}</p>
                     </div>
                     ${state.currentUser.role === 'teacher' ? `
-                        <button type="button" onclick="deleteSchedule(${sch.id})" class="text-slate-400 hover:text-rose-600 text-sm font-bold ml-2 cursor-pointer">×</button>
+                        <button type="button" onclick="window.deleteSchedule(${sch.id})" class="text-slate-400 hover:text-rose-600 text-sm font-bold ml-2 cursor-pointer">×</button>
                     ` : ''}
                 `;
                 container.appendChild(item);
@@ -1771,14 +1916,14 @@
             renderCalendar();
             document.getElementById('sched-memo').value = '';
             showToast('학급 일정이 캘린더에 등록되었습니다.', 'success');
-            await saveToCloud();
+            saveAllData();
         }
 
         async function deleteSchedule(id) {
             state.schedules = state.schedules.filter(s => String(s.id) !== String(id));
             renderCalendar();
             showToast('일정이 삭제되었습니다.', 'info');
-            await saveToCloud();
+            saveAllData();
         }
 
         function renderVolunteerTab() {
@@ -1804,10 +1949,15 @@
 
             const avgHours = state.students.length > 0 ? (totalHours / state.students.length).toFixed(1) : '0';
 
-            document.getElementById('stat-total-vol-hours').innerText = `${totalHours}시간`;
-            document.getElementById('stat-avg-vol-hours').innerText = `${avgHours}시간`;
-            document.getElementById('stat-top-vol-student').innerText = topStudentName;
-            document.getElementById('stat-multichild-count').innerText = `${multiChildCount}명`;
+            const totalEl = document.getElementById('stat-total-vol-hours');
+            const avgEl = document.getElementById('stat-avg-vol-hours');
+            const topEl = document.getElementById('stat-top-vol-student');
+            const multiEl = document.getElementById('stat-multichild-count');
+
+            if (totalEl) totalEl.innerText = `${totalHours}시간`;
+            if (avgEl) avgEl.innerText = `${avgHours}시간`;
+            if (topEl) topEl.innerText = topStudentName;
+            if (multiEl) multiEl.innerText = `${multiChildCount}명`;
         }
 
         function renderVolunteerTable() {
@@ -1838,7 +1988,7 @@
                         <span class="font-bold text-slate-800">${s.name}</span>
                     </td>
                     <td class="px-4 py-3 text-center">
-                        <button type="button" onclick="toggleMultiChild(${s.id})" class="cursor-pointer">
+                        <button type="button" onclick="window.toggleMultiChild(${s.id})" class="cursor-pointer">
                             ${s.isMultiChild 
                                 ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-black bg-rose-100 text-rose-700 border border-rose-200">다자녀 (V)</span>' 
                                 : '<span class="px-2 py-0.5 rounded-full text-[11px] text-slate-400 border border-slate-200">미해당</span>'}
@@ -1846,15 +1996,15 @@
                     </td>
                     <td class="px-4 py-3">
                         <input type="number" value="${currentHours}" min="0" max="999"
-                            onblur="updateStudentVolHours(${s.id}, this.value)"
+                            onblur="window.updateStudentVolHours(${s.id}, this.value)"
                             class="w-16 text-center text-sm font-black text-indigo-600 bg-white border border-slate-200 rounded-lg py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                         <span class="text-xs font-bold text-slate-500 ml-1">시간</span>
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-1">
-                            <button type="button" onclick="adjustVolHours(${s.id}, 1)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded font-bold text-[11px] border border-slate-200 cursor-pointer">+1h</button>
-                            <button type="button" onclick="adjustVolHours(${s.id}, 2)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded font-bold text-[11px] border border-slate-200 cursor-pointer">+2h</button>
-                            <button type="button" onclick="adjustVolHours(${s.id}, -1)" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-700 rounded font-bold text-[11px] border border-slate-200 cursor-pointer">-1h</button>
+                            <button type="button" onclick="window.adjustVolHours(${s.id}, 1)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded font-bold text-[11px] border border-slate-200 cursor-pointer">+1h</button>
+                            <button type="button" onclick="window.adjustVolHours(${s.id}, 2)" class="px-2 py-1 bg-slate-100 hover:bg-indigo-50 text-slate-700 rounded font-bold text-[11px] border border-slate-200 cursor-pointer">+2h</button>
+                            <button type="button" onclick="window.adjustVolHours(${s.id}, -1)" class="px-2 py-1 bg-slate-100 hover:bg-rose-50 text-slate-700 rounded font-bold text-[11px] border border-slate-200 cursor-pointer">-1h</button>
                         </div>
                     </td>
                     <td class="px-4 py-3">
@@ -1874,7 +2024,7 @@
                 student.volHours = Math.max(0, parseInt(newHours) || 0);
                 renderVolunteerTab();
                 renderTraitsTable();
-                await saveToCloud();
+                saveAllData();
             }
         }
 
@@ -1884,7 +2034,7 @@
                 student.volHours = Math.max(0, (Number(student.volHours) || 0) + delta);
                 renderVolunteerTab();
                 renderTraitsTable();
-                await saveToCloud();
+                saveAllData();
             }
         }
 
@@ -1892,9 +2042,15 @@
             const student = state.students.find(s => s.id === studentId);
             if (student) {
                 student.isMultiChild = !student.isMultiChild;
+                if (student.isMultiChild) {
+                    if (!student.tags) student.tags = [];
+                    if (!student.tags.includes('다자녀')) student.tags.push('다자녀');
+                } else {
+                    student.tags = (student.tags || []).filter(t => t !== '다자녀');
+                }
                 renderVolunteerTab();
                 renderTraitsTable();
-                await saveToCloud();
+                saveAllData();
             }
         }
 
@@ -1955,7 +2111,7 @@
                     const schoolInputHtml = isTeacher ? `
                         <div class="flex items-center gap-2">
                             <input type="text" value="${s.school || ''}" 
-                                onblur="updateStudentHighSchool(${s.id}, this.value)" 
+                                onblur="window.updateStudentHighSchool(${s.id}, this.value)" 
                                 class="w-full text-xs font-bold text-slate-800 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500">
                         </div>
                     ` : `
@@ -1966,10 +2122,10 @@
 
                     const presets = isTeacher ? `
                         <div class="flex flex-wrap gap-1">
-                            <button type="button" onclick="quickSetSchool(${s.id}, '백석')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">백석</button>
-                            <button type="button" onclick="quickSetSchool(${s.id}, '아라')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">아라</button>
-                            <button type="button" onclick="quickSetSchool(${s.id}, '마전')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">마전</button>
-                            <button type="button" onclick="quickSetSchool(${s.id}, '이음')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">이음</button>
+                            <button type="button" onclick="window.quickSetSchool(${s.id}, '백석')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">백석</button>
+                            <button type="button" onclick="window.quickSetSchool(${s.id}, '아라')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">아라</button>
+                            <button type="button" onclick="window.quickSetSchool(${s.id}, '마전')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">마전</button>
+                            <button type="button" onclick="window.quickSetSchool(${s.id}, '이음')" class="px-2 py-0.5 rounded text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 cursor-pointer">이음</button>
                         </div>
                     ` : `<span class="text-[11px] text-slate-400">-</span>`;
 
@@ -2000,7 +2156,7 @@
                 student.school = newSchool.trim();
                 renderSurveyStats();
                 renderTraitsTable();
-                await saveToCloud();
+                saveAllData();
             }
         }
 
@@ -2010,12 +2166,14 @@
                 student.school = schoolName;
                 renderHighSchoolSurvey();
                 renderTraitsTable();
-                await saveToCloud();
+                saveAllData();
             }
         }
 
         function promptTeacherEditSchool() {
-            openEditHsModal(state.students[0].id);
+            if (state.students.length > 0) {
+                openEditHsModal(state.students[0].id);
+            }
         }
 
         function openEditHsModal(studentId) {
@@ -2052,6 +2210,192 @@
             link.click();
             document.body.removeChild(link);
         }
+
+        let pendingNoticeFiles = [];
+        let pendingEditNoticeFiles = [];
+        let pendingTeacherMaterialFiles = [];
+        let pendingHighSchoolFiles = [];
+        let pendingPrivateDocFiles = [];
+        let pendingSecretNoteFiles = [];
+        let pendingEditSecretNoteFiles = [];
+        const pendingFiles = {};
+
+        function compressImageData(dataUrl, maxWidth = 480, quality = 0.5) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => resolve(dataUrl);
+                img.src = dataUrl;
+            });
+        }
+
+        async function fileToDataUrl(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    const compressed = await compressImageData(ev.target.result, 480, 0.5);
+                    resolve(compressed);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function getClipboardImageFile(e) {
+            if (!e.clipboardData || !e.clipboardData.items) return null;
+            for (let i = 0; i < e.clipboardData.items.length; i++) {
+                const item = e.clipboardData.items[i];
+                if (item.type && item.type.indexOf('image') !== -1) {
+                    return item.getAsFile();
+                }
+            }
+            return null;
+        }
+
+        window.addEventListener('paste', async (e) => {
+            const imageFile = getClipboardImageFile(e);
+            if (!imageFile) return;
+
+            const now = new Date();
+            const timeCode = `${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
+            const fileName = `캡처사진_${timeCode}.jpg`;
+            const dataUrl = await fileToDataUrl(imageFile);
+
+            const fileObj = {
+                name: fileName,
+                type: 'image',
+                dataUrl: dataUrl,
+                size: '경량 캡처'
+            };
+
+            const noticeModal = document.getElementById('notice-modal');
+            if (noticeModal && !noticeModal.classList.contains('hidden')) {
+                pendingNoticeFiles.push(fileObj);
+                const clearBtn = document.getElementById('notice-file-clear-btn');
+                const previewBox = document.getElementById('notice-files-preview-box');
+                if (clearBtn) clearBtn.classList.remove('hidden');
+                if (previewBox) {
+                    previewBox.classList.remove('hidden');
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.className = "w-16 h-16 object-cover rounded-xl border border-indigo-300 shadow-sm";
+                    previewBox.appendChild(img);
+                }
+                showToast('📸 캡처 사진이 공지사항에 붙여넣어졌습니다!', 'success');
+                return;
+            }
+
+            const editNoticeModal = document.getElementById('edit-notice-modal');
+            if (editNoticeModal && !editNoticeModal.classList.contains('hidden')) {
+                pendingEditNoticeFiles.push(fileObj);
+                updateEditNoticeFilesPreview();
+                showToast('📸 캡처 사진이 수정 공지에 추가되었습니다!', 'success');
+                return;
+            }
+
+            const pdocModal = document.getElementById('create-private-doc-modal');
+            if (pdocModal && !pdocModal.classList.contains('hidden')) {
+                pendingPrivateDocFiles.push(fileObj);
+                const clearBtn = document.getElementById('pdoc-file-clear-btn');
+                const previewBox = document.getElementById('pdoc-files-preview-box');
+                if (clearBtn) clearBtn.classList.remove('hidden');
+                if (previewBox) {
+                    previewBox.classList.remove('hidden');
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.className = "w-16 h-16 object-cover rounded-xl border border-amber-300 shadow-sm";
+                    previewBox.appendChild(img);
+                }
+                showToast('📸 캡처 사진이 비밀 배부 문서에 첨부되었습니다!', 'success');
+                return;
+            }
+
+            const snModal = document.getElementById('secret-note-modal');
+            if (snModal && !snModal.classList.contains('hidden')) {
+                pendingSecretNoteFiles.push(fileObj);
+                const clearBtn = document.getElementById('sn-file-clear-btn');
+                const previewBox = document.getElementById('sn-files-preview-box');
+                if (clearBtn) clearBtn.classList.remove('hidden');
+                if (previewBox) {
+                    previewBox.classList.remove('hidden');
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.className = "w-16 h-16 object-cover rounded-xl border border-rose-300 shadow-sm";
+                    previewBox.appendChild(img);
+                }
+                showToast('📸 캡처 스크린샷이 담임 누가기록에 첨부되었습니다!', 'success');
+                return;
+            }
+
+            const snDetailModal = document.getElementById('secret-note-detail-modal');
+            if (snDetailModal && !snDetailModal.classList.contains('hidden')) {
+                pendingEditSecretNoteFiles.push(fileObj);
+                updateEditSecretNoteFilesPreview();
+                showToast('📸 캡처 사진이 누가기록 수정에 추가되었습니다!', 'success');
+                return;
+            }
+
+            const tdModal = document.getElementById('teacher-material-modal');
+            if (tdModal && !tdModal.classList.contains('hidden')) {
+                pendingTeacherMaterialFiles.push(fileObj);
+                const previewBox = document.getElementById('td-file-list-preview');
+                if (previewBox) {
+                    const chip = document.createElement('span');
+                    chip.className = "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-sky-100 text-sky-800 border border-sky-200 truncate";
+                    chip.innerText = `🖼️ ${fileName}`;
+                    previewBox.appendChild(chip);
+                }
+                showToast('📸 캡처 사진이 자료실 서식에 첨부되었습니다!', 'success');
+                return;
+            }
+
+            const matModal = document.getElementById('material-modal');
+            if (matModal && !matModal.classList.contains('hidden')) {
+                pendingHighSchoolFiles.push(fileObj);
+                const previewBox = document.getElementById('mat-files-preview-box');
+                if (previewBox) {
+                    const chip = document.createElement('span');
+                    chip.className = "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 truncate";
+                    chip.innerText = `🖼️ ${fileName}`;
+                    previewBox.appendChild(chip);
+                }
+                showToast('📸 캡처 사진이 고교 자료에 첨부되었습니다!', 'success');
+                return;
+            }
+
+            const activeElem = document.activeElement;
+            let targetStudentId = null;
+            if (activeElem && activeElem.id && activeElem.id.startsWith('input-msg-')) {
+                targetStudentId = activeElem.id.replace('input-msg-', '');
+            } else if (state.activeTab === 'students') {
+                const myStudent = state.students.find(s => s.studentId === state.currentUser.studentId || s.name === state.currentUser.name);
+                targetStudentId = myStudent ? myStudent.id : state.students[0]?.id;
+            }
+
+            if (targetStudentId) {
+                pendingFiles[targetStudentId] = dataUrl;
+                const indicator = document.getElementById(`file-indicator-${targetStudentId}`);
+                if (indicator) {
+                    indicator.classList.remove('hidden');
+                    indicator.innerHTML = `
+                        <span>📸 캡처 사진 붙여넣기 완료 (${fileName})</span>
+                        <button type="button" onclick="window.clearSelectedFile(${targetStudentId})" class="text-rose-500 font-bold ml-1 cursor-pointer">취소</button>
+                    `;
+                }
+                showToast(`🧑‍🎓 소통 메시지에 캡처 사진이 등록되었습니다! [등록]을 눌러주세요.`, 'success');
+            }
+        });
 
         function renderNotices() {
             const container = document.getElementById('notice-cards-container');
@@ -2103,8 +2447,8 @@
                         <span class="text-slate-400 font-medium">작성: ${n.author}</span>
                         ${isTeacher ? `
                             <div class="flex gap-1.5">
-                                <button type="button" onclick="openEditNoticeModal('${n.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold cursor-pointer transition-colors">수정</button>
-                                <button type="button" onclick="deleteNoticeDirect('${n.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg font-bold cursor-pointer transition-colors">삭제</button>
+                                <button type="button" onclick="window.openEditNoticeModal('${n.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold cursor-pointer transition-colors">수정</button>
+                                <button type="button" onclick="window.deleteNoticeDirect('${n.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg font-bold cursor-pointer transition-colors">삭제</button>
                             </div>
                         ` : ''}
                     </div>
@@ -2153,7 +2497,7 @@
             clearNoticeFile();
             e.target.reset();
             showToast('공지사항이 즉시 등록되었습니다.', 'success');
-            await saveToCloud();
+            saveAllData();
         }
 
         function openEditNoticeModal(id) {
@@ -2181,19 +2525,19 @@
                 renderNotices();
                 closeModal('edit-notice-modal');
                 showToast('공지가 성공적으로 수정되었습니다.', 'success');
-                await saveToCloud();
+                saveAllData();
             }
         }
 
         async function deleteNoticeDirect(id) {
             const targetId = String(id);
-            const target = state.notices.find(n => String(n.id) !== targetId ? false : true);
+            const target = state.notices.find(n => String(n.id) === targetId);
             const title = target ? target.title : '공지';
 
             state.notices = state.notices.filter(n => String(n.id) !== targetId);
             renderNotices();
             showToast(`공지사항 "${title}"이(가) 완전히 삭제되었습니다.`, 'info');
-            await saveToCloud();
+            saveAllData();
         }
 
         function deleteNoticeFromEditModal() {
@@ -2275,7 +2619,7 @@
                         <div class="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                             <span class="text-slate-400 font-medium">${m.uploader}</span>
                             ${state.currentUser.role === 'teacher' ? `
-                                <button type="button" onclick="deleteTeacherMaterial('${m.id}')" class="text-rose-600 hover:text-rose-700 font-bold cursor-pointer">삭제</button>
+                                <button type="button" onclick="window.deleteTeacherMaterial('${m.id}')" class="text-rose-600 hover:text-rose-700 font-bold cursor-pointer">삭제</button>
                             ` : ''}
                         </div>
                     `;
@@ -2327,14 +2671,14 @@
             renderTeacherMaterials();
             closeModal('teacher-material-modal');
             showToast('서식이 등록되었습니다.', 'success');
-            await saveToCloud();
+            saveAllData();
         }
 
         async function deleteTeacherMaterial(id) {
             state.teacherMaterials = state.teacherMaterials.filter(m => String(m.id) !== String(id));
             renderTeacherMaterials();
             showToast('서식이 삭제되었습니다.', 'info');
-            await saveToCloud();
+            saveAllData();
         }
 
         function renderStudents() {
@@ -2366,7 +2710,7 @@
                                     <h3 class="text-base font-extrabold text-slate-800">${s.name}</h3>
                                     <span class="text-[11px] text-slate-500">지망: <strong>${s.school}</strong> · 봉사: <strong>${s.volHours}h</strong></span>
                                 </div>
-                                <button type="button" onclick="openAddTagModal(${s.id}, '${s.name}')" class="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold border border-indigo-200 cursor-pointer">+ 태그</button>
+                                <button type="button" onclick="window.openAddTagModal(${s.id}, '${s.name}')" class="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold border border-indigo-200 cursor-pointer">+ 태그</button>
                             </div>
                             <div class="max-h-40 overflow-y-auto custom-scroll p-1 border border-slate-100 rounded-xl mb-3 bg-slate-50/50">
                                 ${messages || '<p class="text-[11px] text-slate-400 text-center py-4">등록된 소통글이 없습니다.</p>'}
@@ -2376,7 +2720,7 @@
                         <div>
                             <div class="flex gap-1.5 items-center">
                                 <input type="text" id="input-msg-${s.id}" placeholder="글 입력... (Ctrl+V로 캡처 사진 첨부)" class="flex-1 text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <button type="button" onclick="sendStudentMessage(${s.id})" class="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer transition-colors">등록</button>
+                                <button type="button" onclick="window.sendStudentMessage(${s.id})" class="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl cursor-pointer transition-colors">등록</button>
                             </div>
                             <div id="file-indicator-${s.id}" class="text-[11px] text-indigo-600 font-bold mt-1.5 hidden flex items-center justify-between bg-indigo-50 p-1.5 rounded-lg border border-indigo-200"></div>
                         </div>
@@ -2418,7 +2762,7 @@
                 if (input) input.value = '';
                 renderStudents();
                 showToast('메시지가 등록되었습니다.', 'success');
-                await saveToCloud();
+                saveAllData();
             }
         }
 
@@ -2450,7 +2794,7 @@
             renderAll();
             closeModal('student-modal');
             showToast(`${name} 학생이 등록되었습니다.`, 'success');
-            await saveToCloud();
+            saveAllData();
         }
 
         function renderHighschoolMaterials() {
@@ -2473,7 +2817,7 @@
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                             <span class="text-slate-400 font-medium">${m.uploader}</span>
-                            ${state.currentUser.role === 'teacher' ? `<button type="button" onclick="deleteMaterial('${m.id}')" class="text-rose-600 hover:text-rose-700 font-bold cursor-pointer">삭제</button>` : ''}
+                            ${state.currentUser.role === 'teacher' ? `<button type="button" onclick="window.deleteMaterial('${m.id}')" class="text-rose-600 hover:text-rose-700 font-bold cursor-pointer">삭제</button>` : ''}
                         </div>
                     `;
                     container.appendChild(card);
@@ -2523,14 +2867,14 @@
             renderHighschoolMaterials();
             closeModal('material-modal');
             showToast('고교 자료가 등록되었습니다.', 'success');
-            await saveToCloud();
+            saveAllData();
         }
 
         async function deleteMaterial(id) {
             state.highSchoolMaterials = state.highSchoolMaterials.filter(m => String(m.id) !== String(id));
             renderHighschoolMaterials();
             showToast('자료가 삭제되었습니다.', 'info');
-            await saveToCloud();
+            saveAllData();
         }
 
         function renderRoles() {
@@ -2538,7 +2882,8 @@
             if (!container) return;
             container.innerHTML = '';
 
-            document.getElementById('roles-badge').textContent = `${state.roles.length}개`;
+            const badge = document.getElementById('roles-badge');
+            if (badge) badge.textContent = `${state.roles.length}개`;
 
             if (state.roles.length === 0) {
                 container.innerHTML = `<p class="col-span-full py-12 text-center text-xs text-slate-400 border border-dashed border-slate-300 rounded-2xl bg-white">배정된 1인 1역할이 아직 없습니다.</p>`;
@@ -2556,7 +2901,7 @@
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                         <span class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">${r.studentName}</span>
-                        ${state.currentUser.role === 'teacher' ? `<button type="button" onclick="deleteRole('${r.id}')" class="text-rose-600 font-bold cursor-pointer">삭제</button>` : ''}
+                        ${state.currentUser.role === 'teacher' ? `<button type="button" onclick="window.deleteRole('${r.id}')" class="text-rose-600 font-bold cursor-pointer">삭제</button>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -2585,14 +2930,14 @@
             renderRoles();
             closeModal('role-modal');
             showToast('역할이 배정되었습니다.', 'success');
-            await saveToCloud();
+            saveAllData();
         }
 
         async function deleteRole(id) {
             state.roles = state.roles.filter(r => String(r.id) !== String(id));
             renderRoles();
             showToast('역할이 삭제되었습니다.', 'info');
-            await saveToCloud();
+            saveAllData();
         }
 
         let currentTraitFilter = '전체';
@@ -2615,10 +2960,10 @@
                         <td class="px-4 py-3 text-center font-bold text-indigo-600">${s.volHours}h</td>
                         <td class="px-4 py-3">${tagChips || '-'}</td>
                         <td class="px-4 py-3">
-                            <input type="text" value="${s.traitsDesc || ''}" onblur="updateTraitDesc(${s.id}, this.value)" placeholder="특이사항 메모..." class="w-full text-xs p-1 bg-transparent hover:bg-white focus:bg-white border border-transparent hover:border-slate-300 rounded focus:outline-none">
+                            <input type="text" value="${s.traitsDesc || ''}" onblur="window.updateTraitDesc(${s.id}, this.value)" placeholder="특이사항 메모..." class="w-full text-xs p-1 bg-transparent hover:bg-white focus:bg-white border border-transparent hover:border-slate-300 rounded focus:outline-none">
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <button type="button" onclick="openAddTagModal(${s.id}, '${s.name}')" class="text-xs px-2 py-1 rounded bg-indigo-50 text-indigo-700 font-bold cursor-pointer">+ 태그</button>
+                            <button type="button" onclick="window.openAddTagModal(${s.id}, '${s.name}')" class="text-xs px-2 py-1 rounded bg-indigo-50 text-indigo-700 font-bold cursor-pointer">+ 태그</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -2635,7 +2980,7 @@
             if (s) { 
                 s.traitsDesc = val; 
                 showToast('메모가 저장되었습니다.', 'info'); 
-                await saveToCloud();
+                saveAllData();
             }
         }
 
@@ -2655,7 +3000,7 @@
                 if (!s.tags.includes(val)) s.tags.push(val);
                 renderTraitsTable();
                 showToast(`#${val} 태그 추가 완료`, 'success');
-                await saveToCloud();
+                saveAllData();
             }
             closeModal('add-tag-modal');
         }
@@ -2665,81 +3010,406 @@
             if (!container) return;
             container.innerHTML = '';
             const isTeacher = state.currentUser.role === 'teacher';
+            const search = (document.getElementById('pdoc-search-input')?.value || '').toLowerCase();
 
-            state.privateDeliveries.forEach(d => {
-                if (!isTeacher && d.targetStudentId !== state.currentUser.studentId && d.targetStudentName !== state.currentUser.name) return;
+            let list = state.privateDeliveries.filter(d => {
+                if (!isTeacher && d.targetStudentId !== state.currentUser.studentId && d.targetStudentName !== state.currentUser.name) return false;
+                const matchCat = (state.currentPdocFilter === '전체' || d.category === state.currentPdocFilter);
+                const matchSearch = (d.title.toLowerCase().includes(search) || d.targetStudentName.toLowerCase().includes(search) || (d.memo && d.memo.toLowerCase().includes(search)));
+                return matchCat && matchSearch;
+            });
 
+            const badge = document.getElementById('private-docs-badge');
+            if (badge) badge.textContent = `${list.length}건`;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-xs text-slate-400 bg-white rounded-2xl border border-dashed border-amber-200">
+                        ${isTeacher ? '배부된 비밀 문서가 없습니다. [+ 새 비밀 배부 문서 등록] 버튼을 눌러보세요.' : '현재 도착한 비밀 배부 문서가 없습니다.'}
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach(d => {
+                const isUnlocked = isTeacher || !!state.unlockedDeliveries[d.id];
                 const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-2xl border border-amber-200 shadow-xs flex flex-col justify-between";
+                card.className = "bg-white p-5 rounded-2xl border border-amber-200 shadow-xs flex flex-col justify-between hover:border-amber-400 transition-all";
+
+                const images = (d.files || []).filter(f => f.type === 'image' && f.dataUrl);
+
+                let contentHtml = '';
+                if (isUnlocked) {
+                    contentHtml = `
+                        <div class="mt-2.5 p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2">
+                            <div class="flex items-center gap-1.5 text-emerald-800 font-bold text-xs">
+                                <span>🔓</span> <span>비밀번호 잠금 해제됨 (열람 가능)</span>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">${d.memo || '개별 전달 안내문이 없습니다.'}</p>
+                            ${images.length > 0 ? `
+                                <div class="mt-2 grid grid-cols-2 gap-2">
+                                    ${images.map(img => `<img src="${img.dataUrl}" class="rounded-xl object-cover h-28 w-full border border-slate-200 cursor-pointer hover:opacity-90" onclick="window.open('${img.dataUrl}', '_blank')">`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    contentHtml = `
+                        <div class="mt-3 p-4 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-2">
+                            <div class="text-2xl">🔒</div>
+                            <p class="text-xs font-bold text-slate-800">문서가 비밀번호로 잠겨 있습니다</p>
+                            <p class="text-[11px] text-slate-400">선생님께 전달받은 비밀번호를 입력하면 사진과 내용을 볼 수 있습니다.</p>
+                            <button type="button" onclick="window.openUnlockPrivateDocModal(${d.id})" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer">
+                                🔑 비밀번호 입력하고 열기
+                            </button>
+                        </div>
+                    `;
+                }
+
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center justify-between mb-2">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">${d.category}</span>
-                            <span class="text-xs font-bold text-indigo-600">${d.targetStudentName} 학생 전용</span>
+                            <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">🧑‍🎓 ${d.targetStudentName} 전용</span>
                         </div>
-                        <h3 class="font-extrabold text-slate-800 text-base">${d.title}</h3>
-                        <p class="text-xs text-slate-600 mt-2 whitespace-pre-line leading-relaxed">${d.memo}</p>
+                        <h3 class="font-extrabold text-slate-800 text-base leading-snug">${d.title}</h3>
+                        ${contentHtml}
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <span class="font-mono text-slate-400">${isTeacher ? '보안 암호: ' + d.password : '인증 완료'}</span>
-                        <span class="text-emerald-700 font-bold">열람 가능 🔓</span>
+                        <span class="font-mono text-slate-400">${isTeacher ? '🔑 설정 암호: ' + d.password : (isUnlocked ? '열람 완료 🔓' : '비공개 🔒')}</span>
+                        ${isTeacher ? `<button type="button" onclick="window.deletePrivateDoc(${d.id})" class="text-rose-600 hover:text-rose-700 font-bold cursor-pointer">배부 취소(삭제)</button>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function filterPrivateDocs() { renderPrivateDocs(); }
-        function openCreatePrivateDocModal() { showToast('비밀 배부 기능이 준비되었습니다.', 'info'); }
+        function filterPrivateDocs(cat) {
+            state.currentPdocFilter = cat;
+            document.querySelectorAll('.pdoc-filter-btn').forEach(b => {
+                b.className = b.innerText.includes(cat) ? "pdoc-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer" : "pdoc-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer";
+            });
+            renderPrivateDocs();
+        }
+
+        function openCreatePrivateDocModal() {
+            if (state.currentUser.role !== 'teacher') {
+                showToast('비밀 배부는 담임선생님만 가능합니다.', 'error');
+                return;
+            }
+            const select = document.getElementById('new-pdoc-student');
+            if (select) {
+                select.innerHTML = state.students.map(s => `<option value="${s.studentId}|${s.name}">${s.no}번 ${s.name} (${s.studentId})</option>`).join('');
+            }
+            clearPrivateDocFiles();
+            generateRandomPin();
+            openModal('create-private-doc-modal');
+        }
+
+        function generateRandomPin() {
+            const pin = Math.floor(1000 + Math.random() * 9000).toString();
+            const input = document.getElementById('new-pdoc-password');
+            if (input) input.value = pin;
+        }
+
+        async function handlePrivateDocFileSelect(e) {
+            const files = Array.from(e.target.files || []);
+            for (const file of files) {
+                const dataUrl = await fileToDataUrl(file);
+                pendingPrivateDocFiles.push({ name: file.name, type: 'image', dataUrl });
+                const previewBox = document.getElementById('pdoc-files-preview-box');
+                if (previewBox) {
+                    previewBox.classList.remove('hidden');
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.className = "w-16 h-16 object-cover rounded-xl border border-amber-300";
+                    previewBox.appendChild(img);
+                }
+            }
+            document.getElementById('pdoc-file-clear-btn')?.classList.remove('hidden');
+        }
+
+        function clearPrivateDocFiles() {
+            pendingPrivateDocFiles = [];
+            const box = document.getElementById('pdoc-files-preview-box');
+            if (box) { box.innerHTML = ''; box.classList.add('hidden'); }
+            document.getElementById('pdoc-file-clear-btn')?.classList.add('hidden');
+        }
+
+        async function handleCreatePrivateDoc(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (state.currentUser.role !== 'teacher') return;
+
+            const category = document.getElementById('new-pdoc-category').value;
+            const [studentId, studentName] = document.getElementById('new-pdoc-student').value.split('|');
+            const title = document.getElementById('new-pdoc-title').value.trim();
+            const password = document.getElementById('new-pdoc-password').value.trim();
+            const memo = document.getElementById('new-pdoc-memo').value.trim();
+
+            if (!password) {
+                showToast('비밀번호를 입력해 주세요.', 'error');
+                return;
+            }
+
+            const newDoc = {
+                id: Date.now(),
+                targetStudentId: studentId,
+                targetStudentName: studentName,
+                category: category,
+                title: title,
+                password: password,
+                memo: memo,
+                date: new Date().toISOString().split('T')[0],
+                uploader: '담임선생님',
+                files: [...pendingPrivateDocFiles]
+            };
+
+            state.privateDeliveries.unshift(newDoc);
+            renderPrivateDocs();
+            closeModal('create-private-doc-modal');
+            clearPrivateDocFiles();
+            e.target.reset();
+            showToast(`${studentName} 학생에게 비밀 문서가 성공적으로 배부되었습니다!`, 'success');
+            saveAllData();
+        }
+
+        function openUnlockPrivateDocModal(id) {
+            const target = state.privateDeliveries.find(d => Number(d.id) === Number(id));
+            if (!target) return;
+            document.getElementById('unlock-target-id').value = target.id;
+            document.getElementById('unlock-modal-title').innerText = target.title;
+            const input = document.getElementById('unlock-password-input');
+            const err = document.getElementById('unlock-error-msg');
+            if (input) input.value = '';
+            if (err) err.classList.add('hidden');
+            openModal('unlock-private-doc-modal');
+            setTimeout(() => input?.focus(), 150);
+        }
+
+        function handleUnlockPrivateDoc(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const id = Number(document.getElementById('unlock-target-id').value);
+            const inputPwd = document.getElementById('unlock-password-input').value.trim();
+            const errEl = document.getElementById('unlock-error-msg');
+            const target = state.privateDeliveries.find(d => Number(d.id) === id);
+
+            if (target && target.password === inputPwd) {
+                state.unlockedDeliveries[id] = true;
+                closeModal('unlock-private-doc-modal');
+                renderPrivateDocs();
+                showToast('비밀번호가 확인되어 잠금이 해제되었습니다!', 'success');
+            } else {
+                if (errEl) errEl.classList.remove('hidden');
+                document.getElementById('unlock-password-input').value = '';
+                document.getElementById('unlock-password-input').focus();
+            }
+        }
+
+        async function deletePrivateDoc(id) {
+            const targetId = Number(id);
+            state.privateDeliveries = state.privateDeliveries.filter(d => Number(d.id) !== targetId);
+            delete state.unlockedDeliveries[targetId];
+            renderPrivateDocs();
+            showToast('비밀 배부 문서가 삭제되었습니다.', 'info');
+            saveAllData();
+        }
 
         function renderSecretNotes() {
             const container = document.getElementById('secret-notes-list');
             if (!container || state.currentUser.role !== 'teacher') return;
             container.innerHTML = '';
 
-            if (state.secretNotes.length === 0) {
-                container.innerHTML = `<p class="p-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-dashed border-rose-200">등록된 담임 누가기록이 없습니다.</p>`;
+            const search = (document.getElementById('sn-search-input')?.value || '').toLowerCase();
+            const list = state.secretNotes.filter(n => {
+                const matchCat = (state.currentSnFilter === '전체' || n.category === state.currentSnFilter);
+                const matchSearch = (n.title.toLowerCase().includes(search) || (n.studentName && n.studentName.toLowerCase().includes(search)));
+                return matchCat && matchSearch;
+            });
+
+            if (list.length === 0) {
+                container.innerHTML = `<p class="p-8 text-center text-xs text-slate-400 bg-white rounded-2xl border border-dashed border-rose-200">등록된 담임 누가기록이 없습니다. [+ 새 누가기록 작성] 버튼을 클릭해 스크린샷과 함께 기록하세요.</p>`;
                 return;
             }
 
-            state.secretNotes.forEach(n => {
+            list.forEach(n => {
                 const item = document.createElement('div');
-                item.className = "p-4 bg-white rounded-xl border border-slate-200 flex items-center justify-between shadow-xs";
+                item.className = "p-4 bg-white rounded-xl border border-slate-200 flex items-center justify-between shadow-xs hover:border-rose-300 transition-all cursor-pointer group";
+                item.onclick = () => window.openSecretNoteDetail(n.id);
+
+                const hasImages = (n.files || []).some(f => f.type === 'image' && f.dataUrl);
+
                 item.innerHTML = `
-                    <div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 mr-2">${n.category}</span>
-                        <span class="font-bold text-sm text-slate-800">${n.title}</span>
-                        <span class="text-xs text-indigo-600 ml-2">(${n.studentName || '학급공통'})</span>
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <span class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                            🔒
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">${n.category}</span>
+                                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">🧑‍🎓 ${n.studentName || '학급공통'}</span>
+                                ${hasImages ? '<span class="text-[10px] text-rose-500 font-bold">📸 사진첨부됨</span>' : ''}
+                                <span class="text-[11px] text-slate-400">${n.date}</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-slate-800 truncate group-hover:text-rose-600 transition-colors">${n.title}</h4>
+                        </div>
                     </div>
-                    <button type="button" onclick="deleteSecretNote('${n.id}')" class="text-rose-600 font-bold text-xs cursor-pointer">삭제</button>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs text-slate-400 group-hover:text-slate-600 font-semibold">열람 ➔</span>
+                        <button type="button" onclick="event.stopPropagation(); window.deleteSecretNoteDirect(${n.id})" class="p-1 text-slate-300 hover:text-rose-600 font-bold text-sm rounded cursor-pointer" title="삭제">🗑️</button>
+                    </div>
                 `;
                 container.appendChild(item);
             });
         }
 
-        function filterSecretNotes() { renderSecretNotes(); }
-        async function openSecretNoteModal() {
-            const title = prompt("누가기록 제목을 입력하세요:");
-            if (title) {
-                const content = prompt("상세 관찰 및 상담 기록을 입력하세요:");
-                state.secretNotes.unshift({
-                    id: Date.now(),
-                    category: '심층상담',
-                    studentName: '강유진',
-                    title,
-                    content: content || ''
+        function filterSecretNotes(cat) {
+            state.currentSnFilter = cat;
+            document.querySelectorAll('.sn-filter-btn').forEach(b => {
+                b.className = (b.innerText === cat || (cat === '전체' && b.innerText === '전체')) ? "sn-filter-btn active px-3 py-1 text-xs rounded-lg font-bold bg-slate-800 text-white cursor-pointer" : "sn-filter-btn px-3 py-1 text-xs rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer";
+            });
+            renderSecretNotes();
+        }
+
+        function openSecretNoteModal() {
+            if (state.currentUser.role !== 'teacher') {
+                showToast('담임교사 전용 기능입니다.', 'error');
+                return;
+            }
+            const select = document.getElementById('new-sn-student');
+            if (select) {
+                select.innerHTML = '<option value="(학급 전체)">(학급 전체 / 일반)</option>' +
+                    state.students.map(s => `<option value="${s.name} (${s.studentId})">${s.no}번 ${s.name} (${s.studentId})</option>`).join('');
+            }
+            clearSecretNoteFiles();
+            openModal('secret-note-modal');
+        }
+
+        async function handleSecretNoteFileSelect(e) {
+            const files = Array.from(e.target.files || []);
+            for (const file of files) {
+                const dataUrl = await fileToDataUrl(file);
+                pendingSecretNoteFiles.push({ name: file.name, type: 'image', dataUrl });
+                const previewBox = document.getElementById('sn-files-preview-box');
+                if (previewBox) {
+                    previewBox.classList.remove('hidden');
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.className = "w-16 h-16 object-cover rounded-xl border border-rose-300";
+                    previewBox.appendChild(img);
+                }
+            }
+            document.getElementById('sn-file-clear-btn')?.classList.remove('hidden');
+        }
+
+        function clearSecretNoteFiles() {
+            pendingSecretNoteFiles = [];
+            const box = document.getElementById('sn-files-preview-box');
+            if (box) { box.innerHTML = ''; box.classList.add('hidden'); }
+            document.getElementById('sn-file-clear-btn')?.classList.add('hidden');
+        }
+
+        async function handleCreateSecretNote(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (state.currentUser.role !== 'teacher') return;
+
+            const category = document.getElementById('new-sn-category').value;
+            const studentName = document.getElementById('new-sn-student').value;
+            const title = document.getElementById('new-sn-title').value.trim();
+            const content = document.getElementById('new-sn-content').value.trim();
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            state.secretNotes.unshift({
+                id: Date.now(),
+                category,
+                studentName,
+                title,
+                content,
+                date: dateStr,
+                files: [...pendingSecretNoteFiles]
+            });
+
+            renderSecretNotes();
+            closeModal('secret-note-modal');
+            clearSecretNoteFiles();
+            e.target.reset();
+            showToast('담임 누가기록이 안전하게 저장되었습니다.', 'success');
+            saveAllData();
+        }
+
+        function openSecretNoteDetail(id) {
+            if (state.currentUser.role !== 'teacher') return;
+            const targetId = Number(id);
+            const note = state.secretNotes.find(n => Number(n.id) === targetId);
+            if (!note) return;
+
+            document.getElementById('detail-sn-id').value = note.id;
+            document.getElementById('detail-sn-category').value = note.category;
+            document.getElementById('detail-sn-title').value = note.title;
+            document.getElementById('detail-sn-content').value = note.content;
+
+            const dateInfo = document.getElementById('detail-sn-date-info');
+            const studentBadge = document.getElementById('detail-sn-student-badge');
+            if (dateInfo) dateInfo.innerText = `작성일시: ${note.date}`;
+            if (studentBadge) studentBadge.innerText = note.studentName ? `대상: ${note.studentName}` : '학급 전체';
+
+            pendingEditSecretNoteFiles = Array.isArray(note.files) ? [...note.files] : [];
+            updateEditSecretNoteFilesPreview();
+            openModal('secret-note-detail-modal');
+        }
+
+        function updateEditSecretNoteFilesPreview() {
+            const box = document.getElementById('detail-sn-files-preview-box');
+            if (!box) return;
+            box.innerHTML = '';
+            if (pendingEditSecretNoteFiles.length > 0) {
+                box.classList.remove('hidden');
+                pendingEditSecretNoteFiles.forEach(f => {
+                    const img = document.createElement('img');
+                    img.src = f.dataUrl;
+                    img.className = "w-16 h-16 object-cover rounded-xl border border-rose-200 shadow-sm cursor-pointer hover:opacity-90";
+                    img.onclick = () => window.open(f.dataUrl, '_blank');
+                    box.appendChild(img);
                 });
-                renderSecretNotes();
-                showToast('누가기록이 안전하게 저장되었습니다.', 'success');
-                await saveToCloud();
+            } else {
+                box.classList.add('hidden');
             }
         }
 
-        async function deleteSecretNote(id) {
-            state.secretNotes = state.secretNotes.filter(n => String(n.id) !== String(id));
+        async function handleUpdateSecretNote(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (state.currentUser.role !== 'teacher') return;
+
+            const id = Number(document.getElementById('detail-sn-id').value);
+            const note = state.secretNotes.find(n => Number(n.id) === id);
+
+            if (note) {
+                note.category = document.getElementById('detail-sn-category').value;
+                note.title = document.getElementById('detail-sn-title').value.trim();
+                note.content = document.getElementById('detail-sn-content').value.trim();
+                note.files = [...pendingEditSecretNoteFiles];
+
+                renderSecretNotes();
+                closeModal('secret-note-detail-modal');
+                showToast('누가기록이 수정되었습니다.', 'success');
+                saveAllData();
+            }
+        }
+
+        async function deleteSecretNoteDirect(id) {
+            if (state.currentUser.role !== 'teacher') return;
+            const targetId = Number(id);
+            state.secretNotes = state.secretNotes.filter(n => Number(n.id) !== targetId);
             renderSecretNotes();
-            showToast('기록이 삭제되었습니다.', 'info');
-            await saveToCloud();
+            showToast('누가기록이 삭제되었습니다.', 'info');
+            saveAllData();
+        }
+
+        function deleteSecretNoteFromModal() {
+            const id = Number(document.getElementById('detail-sn-id').value);
+            closeModal('secret-note-detail-modal');
+            deleteSecretNoteDirect(id);
         }
 
         function updateScheduleSelectOptions() {
@@ -2772,7 +3442,8 @@
             populateLoginDropdown();
         }
 
-        // 전역 바인딩 (HTML 인라인 이벤트 안전 연동)
+        window.switchLoginTab = switchLoginTab;
+        window.handleDirectTeacherLogin = handleDirectTeacherLogin;
         window.handleLogin = handleLogin;
         window.quickLogin = quickLogin;
         window.handleLogout = handleLogout;
@@ -2822,4 +3493,156 @@
         window.handleCreateStudent = handleCreateStudent;
         window.renderHighschoolMaterials = renderHighschoolMaterials;
         window.filterHighschool = filterHighschool;
-        window.openAddMaterialModal
+        window.openAddMaterialModal = openAddMaterialModal;
+        window.handleMaterialFileSelect = handleMaterialFileSelect;
+        window.handleCreateMaterial = handleCreateMaterial;
+        window.deleteMaterial = deleteMaterial;
+        window.renderRoles = renderRoles;
+        window.openAddRoleModal = openAddRoleModal;
+        window.handleCreateRole = handleCreateRole;
+        window.deleteRole = deleteRole;
+        window.renderTraitsTable = renderTraitsTable;
+        window.filterTraitsByTag = filterTraitsByTag;
+        window.updateTraitDesc = updateTraitDesc;
+        window.openAddTagModal = openAddTagModal;
+        window.confirmAddTag = confirmAddTag;
+        window.renderPrivateDocs = renderPrivateDocs;
+        window.filterPrivateDocs = filterPrivateDocs;
+        window.openCreatePrivateDocModal = openCreatePrivateDocModal;
+        window.generateRandomPin = generateRandomPin;
+        window.handlePrivateDocFileSelect = handlePrivateDocFileSelect;
+        window.clearPrivateDocFiles = clearPrivateDocFiles;
+        window.handleCreatePrivateDoc = handleCreatePrivateDoc;
+        window.openUnlockPrivateDocModal = openUnlockPrivateDocModal;
+        window.handleUnlockPrivateDoc = handleUnlockPrivateDoc;
+        window.deletePrivateDoc = deletePrivateDoc;
+        window.renderSecretNotes = renderSecretNotes;
+        window.filterSecretNotes = filterSecretNotes;
+        window.openSecretNoteModal = openSecretNoteModal;
+        window.handleSecretNoteFileSelect = handleSecretNoteFileSelect;
+        window.clearSecretNoteFiles = clearSecretNoteFiles;
+        window.handleCreateSecretNote = handleCreateSecretNote;
+        window.openSecretNoteDetail = openSecretNoteDetail;
+        window.handleUpdateSecretNote = handleUpdateSecretNote;
+        window.deleteSecretNoteDirect = deleteSecretNoteDirect;
+        window.deleteSecretNoteFromModal = deleteSecretNoteFromModal;
+
+        // 통합 데이터 저장 (로컬스토리지 우선 즉시 보존 + 클라우드 백업)
+        function saveAllData() {
+            saveLocalStorageState();
+            if (window.cloudSaveHandler) {
+                window.cloudSaveHandler();
+            }
+        }
+        window.saveAllData = saveAllData;
+
+        // 1단계: 즉시 로컬 데이터 로드 및 UI 렌더링 (CORS 및 외부 네트워크 의존성 차단)
+        loadLocalStorageState();
+        renderAll();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const userProvidedConfig = {
+            apiKey: "AIzaSyCgAvzXn5V_MA1jqEJuvREI4caqBlv35U4",
+            authDomain: "jari-5c613.firebaseapp.com",
+            projectId: "jari-5c613",
+            storageBucket: "jari-5c613.firebasestorage.app",
+            messagingSenderId: "632470920233",
+            appId: "1:632470920233:web:bc7c8e79cfdd29f503d038",
+            measurementId: "G-PHBJ7PN2KX"
+        };
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : userProvidedConfig;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jari-5c613';
+
+        let db = null;
+        let auth = null;
+        let sharedDocRef = null;
+        let isSaving = false;
+
+        async function initCloudSync() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                sharedDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'class_hub', 'current_state');
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                updateSyncBadge('online');
+
+                onSnapshot(sharedDocRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        if (data) {
+                            if (Array.isArray(data.students)) state.students = data.students;
+                            if (Array.isArray(data.notices)) state.notices = data.notices;
+                            if (Array.isArray(data.teacherMaterials)) state.teacherMaterials = data.teacherMaterials;
+                            if (Array.isArray(data.highSchoolMaterials)) state.highSchoolMaterials = data.highSchoolMaterials;
+                            if (Array.isArray(data.roles)) state.roles = data.roles;
+                            if (Array.isArray(data.schedules)) state.schedules = data.schedules;
+                            if (Array.isArray(data.secretNotes)) state.secretNotes = data.secretNotes;
+                            if (Array.isArray(data.privateDeliveries)) state.privateDeliveries = data.privateDeliveries;
+                            renderAll();
+                            saveLocalStorageState();
+                            updateSyncBadge('online');
+                        }
+                    }
+                }, (error) => {
+                    console.warn("Firestore sync error:", error);
+                    updateSyncBadge('local');
+                });
+            } catch (err) {
+                console.warn("Cloud init fallback to local storage:", err);
+                updateSyncBadge('local');
+            }
+        }
+
+        window.cloudSaveHandler = async function() {
+            if (!auth || !auth.currentUser || !db || !sharedDocRef || isSaving) return;
+            isSaving = true;
+            try {
+                await setDoc(sharedDocRef, {
+                    students: state.students,
+                    notices: state.notices,
+                    teacherMaterials: state.teacherMaterials,
+                    highSchoolMaterials: state.highSchoolMaterials,
+                    roles: state.roles,
+                    schedules: state.schedules,
+                    secretNotes: state.secretNotes,
+                    privateDeliveries: state.privateDeliveries,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch (e) {
+                console.warn("Cloud save failed, local storage remains safe:", e);
+                updateSyncBadge('local');
+            } finally {
+                isSaving = false;
+            }
+        };
+
+        function updateSyncBadge(status) {
+            const badge = document.getElementById('sync-status-badge');
+            if (!badge) return;
+            if (status === 'online') {
+                badge.innerHTML = `<span>☁️ 파이어베이스 연동 중</span>`;
+                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+            } else {
+                badge.innerHTML = `<span>💾 로컬 영구 보존 모드</span>`;
+                badge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200';
+            }
+        }
+
+        initCloudSync();
+    </script>
+</body>
+</html>
